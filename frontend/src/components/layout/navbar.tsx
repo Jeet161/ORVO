@@ -39,8 +39,8 @@ export function Navbar() {
   // Load cart + notif counts
   useEffect(() => {
     if (!user) return;
-    cartApi.get().then(c => setCartCount(c.items.reduce((s, i) => s + i.quantity, 0))).catch(() => {});
-    notificationsApi.getUnreadCount().then(r => setNotifCount(r.count)).catch(() => {});
+    cartApi.get().then(c => setCartCount(c.items.reduce((s, i) => s + i.quantity, 0))).catch(() => { });
+    notificationsApi.getUnreadCount().then(r => setNotifCount(r.count)).catch(() => { });
   }, [user]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -191,24 +191,25 @@ export function Navbar() {
                     <div style={{ fontSize: 11, color: '#BBC863', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 }}>{user.role}</div>
                   </div>
 
-                   {/* Profile Menu Items (Enajori style) */}
-                   {[
-                     { href: '/orders', label: 'My Orders', icon: '📦' },
-                     { href: '/wishlist', label: 'Wishlist', icon: '♡' },
-                     { href: '/cart', label: 'Cart', icon: '🛒' },
-                   ].map(item => (
-                     <Link key={item.label} href={item.href} onClick={() => setProfileOpen(false)} style={{
-                       display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8,
-                       textDecoration: 'none', color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 500,
-                       transition: 'all 0.15s',
-                     }}
-                       onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(187,200,99,0.1)'; (e.currentTarget as HTMLElement).style.color = '#BBC863'; }}
-                       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.85)'; }}
-                     >
-                       <span style={{ fontSize: 14 }}>{item.icon}</span>
-                       <span>{item.label}</span>
-                     </Link>
-                   ))}
+                  {/* Profile Menu Items (Enajori style) */}
+                  {[
+                    ...(dashLink ? [{ href: dashLink.href, label: dashLink.label, icon: '📊' }] : []),
+                    { href: '/orders', label: 'My Orders', icon: '📦' },
+                    { href: '/wishlist', label: 'Wishlist', icon: '♡' },
+                    { href: '/cart', label: 'Cart', icon: '🛒' },
+                  ].map(item => (
+                    <Link key={item.label} href={item.href} onClick={() => setProfileOpen(false)} style={{
+                      display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8,
+                      textDecoration: 'none', color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 500,
+                      transition: 'all 0.15s',
+                    }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(187,200,99,0.1)'; (e.currentTarget as HTMLElement).style.color = '#BBC863'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.85)'; }}
+                    >
+                      <span style={{ fontSize: 14 }}>{item.icon}</span>
+                      <span>{item.label}</span>
+                    </Link>
+                  ))}
 
                   <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', marginTop: 4, paddingTop: 4 }}>
                     <button onClick={() => { setProfileOpen(false); logout(); }} style={{
