@@ -151,7 +151,7 @@ export default function HomePage() {
       {categories.length > 0 && (
         <section style={{ padding: '80px 0 60px', background: '#0A1A0F' }}>
           <div className="container" style={{ maxWidth: 1100, margin: '0 auto' }}>
-            <h2 style={{ fontFamily: 'Jost, sans-serif', fontSize: 32, fontWeight: 900, color: '#fff', textAlign: 'center', marginBottom: 40, letterSpacing: '-0.5px' }}>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 900, color: '#fff', textAlign: 'center', marginBottom: 40, letterSpacing: '-0.5px' }}>
               Categories
             </h2>
             <div style={{ 

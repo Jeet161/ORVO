@@ -16,7 +16,10 @@ export function ProductCard({ product, showStatus = false }: ProductCardProps) {
   const [addingCart, setAddingCart] = useState(false);
   const [added, setAdded] = useState(false);
 
-  const primaryImage = product.images?.find((i) => i.isPrimary) || product.images?.[0];
+  let primaryImage = product.images?.find((i) => i.isPrimary) || product.images?.[0];
+  const imageUrl = product.title === 'Fast Wireless Charger 15W' 
+    ? 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=800&q=80'
+    : primaryImage?.url;
 
   const toggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -62,13 +65,16 @@ export function ProductCard({ product, showStatus = false }: ProductCardProps) {
       <div className="card" style={{ cursor: 'pointer' }}>
         {/* Image */}
         <div style={{ position: 'relative', aspectRatio: '1 / 1', overflow: 'hidden', background: 'var(--orvo-surface-2)' }}>
-          {primaryImage ? (
+          {imageUrl ? (
             <img
-              src={primaryImage.url}
+              src={imageUrl}
               alt={product.title}
               style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s ease' }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.06)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/400x400/0A1A0F/BBC863?text=No+Image';
+              }}
             />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--orvo-text-faint)', fontSize: 32 }}>

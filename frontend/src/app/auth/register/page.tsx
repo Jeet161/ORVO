@@ -133,26 +133,35 @@ export default function RegisterPage() {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(0,212,170,0.12) 0%, transparent 60%)',
+    background: '#07130B', // Slightly deeper background for more contrast
+    backgroundImage: 'radial-gradient(circle at 50% 0%, rgba(187,200,99,0.2) 0%, transparent 65%)', // Brighter glow
     padding: '24px',
   };
 
   return (
     <div style={cardStyle}>
-      <div className="glass" style={{ width: '100%', maxWidth: 420, padding: 40 }}>
+      <div style={{ 
+        width: '100%', maxWidth: 560, padding: '64px 56px',
+        background: 'rgba(255,255,255,0.06)', // Slightly lighter glass card
+        border: '1px solid rgba(255,255,255,0.12)', // more visible border
+        backdropFilter: 'blur(32px)', // heavier blur
+        borderRadius: 24,
+        boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
+      }}>
 
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <div style={{
-            width: 48, height: 48, borderRadius: 14,
-            background: 'linear-gradient(135deg, var(--orvo-primary), var(--orvo-accent))',
+            width: 54, height: 54, borderRadius: 16,
+            background: 'linear-gradient(135deg, #BBC863, #658C58)',
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 800, fontSize: 20, color: '#fff', marginBottom: 12,
+            fontWeight: 800, fontSize: 24, color: '#1E4632', marginBottom: 16,
+            boxShadow: '0 8px 24px rgba(187,200,99,0.25)',
           }}>O</div>
-          <h1 className="font-display" style={{ fontSize: 24, fontWeight: 700, marginBottom: 6 }}>
+          <h1 className="font-display" style={{ fontSize: 28, fontWeight: 800, marginBottom: 8, color: '#fff', letterSpacing: '-0.5px' }}>
             {step === 'otp' ? 'Verify Your Email' : 'Join ORVO'}
           </h1>
-          <p style={{ color: 'var(--orvo-text-muted)', fontSize: 14 }}>
+          <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 15 }}>
             {step === 'otp'
               ? `We sent a 6-digit code to ${email}`
               : 'Create your account to start shopping'}
@@ -191,33 +200,33 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-              <div style={{ flex: 1, height: 1, background: 'var(--orvo-border)' }} />
-              <span style={{ fontSize: 12, color: 'var(--orvo-text-muted)', fontWeight: 500 }}>OR REGISTER WITH EMAIL</span>
-              <div style={{ flex: 1, height: 1, background: 'var(--orvo-border)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 600, letterSpacing: 1 }}>OR REGISTER WITH EMAIL</span>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
             </div>
 
             <form onSubmit={handleSendOtp} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--orvo-text-muted)', display: 'block', marginBottom: 6 }}>FULL NAME</label>
-                <input className="input" placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', display: 'block', marginBottom: 8, letterSpacing: 1 }}>FULL NAME</label>
+                <input style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', outline: 'none', transition: 'border-color 0.2s, background 0.2s' }} onFocus={e => { e.target.style.borderColor = '#BBC863'; e.target.style.background = 'rgba(255,255,255,0.12)' }} onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.background = 'rgba(255,255,255,0.08)' }} placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--orvo-text-muted)', display: 'block', marginBottom: 6 }}>EMAIL</label>
-                <input className="input" type="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', display: 'block', marginBottom: 8, letterSpacing: 1 }}>EMAIL</label>
+                <input style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', outline: 'none', transition: 'border-color 0.2s, background 0.2s' }} onFocus={e => { e.target.style.borderColor = '#BBC863'; e.target.style.background = 'rgba(255,255,255,0.12)' }} onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.background = 'rgba(255,255,255,0.08)' }} type="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--orvo-text-muted)', display: 'block', marginBottom: 6 }}>PASSWORD</label>
-                <input className="input" type="password" placeholder="Min. 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', display: 'block', marginBottom: 8, letterSpacing: 1 }}>PASSWORD</label>
+                <input style={{ width: '100%', padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', outline: 'none', transition: 'border-color 0.2s, background 0.2s' }} onFocus={e => { e.target.style.borderColor = '#BBC863'; e.target.style.background = 'rgba(255,255,255,0.12)' }} onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.15)'; e.target.style.background = 'rgba(255,255,255,0.08)' }} type="password" placeholder="Min. 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} required />
               </div>
-              <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', marginTop: 4 }}>
+              <button type="submit" disabled={loading} style={{ width: '100%', marginTop: 12, padding: '14px', borderRadius: 12, background: '#BBC863', color: '#1E4632', border: 'none', fontWeight: 800, fontSize: 15, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#d2df78'} onMouseLeave={e => e.currentTarget.style.background = '#BBC863'}>
                 {loading ? 'Sending Code...' : 'Continue →'}
               </button>
             </form>
 
-            <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'var(--orvo-text-muted)' }}>
+            <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'rgba(255,255,255,0.5)' }}>
               Already have an account?{' '}
-              <Link href="/auth/login" style={{ color: 'var(--orvo-primary-light)', fontWeight: 600, textDecoration: 'none' }}>
+              <Link href="/auth/login" style={{ color: '#BBC863', fontWeight: 700, textDecoration: 'none' }}>
                 Sign in →
               </Link>
             </p>
@@ -245,19 +254,21 @@ export default function RegisterPage() {
                     textAlign: 'center',
                     fontSize: 24,
                     fontWeight: 700,
-                    border: `2px solid ${digit ? 'var(--orvo-primary)' : 'var(--orvo-border)'}`,
+                    border: `2px solid ${digit ? '#BBC863' : 'rgba(255,255,255,0.15)'}`,
                     borderRadius: 12,
-                    background: 'var(--orvo-surface)',
-                    color: 'var(--orvo-text)',
+                    background: 'rgba(255,255,255,0.08)',
+                    color: '#fff',
                     outline: 'none',
-                    transition: 'border-color 0.2s',
-                    caretColor: 'var(--orvo-primary)',
+                    transition: 'border-color 0.2s, background 0.2s',
+                    caretColor: '#BBC863',
                   }}
+                  onFocus={e => { e.target.style.borderColor = '#BBC863'; e.target.style.background = 'rgba(255,255,255,0.12)'; }}
+                  onBlur={e => { e.target.style.borderColor = digit ? '#BBC863' : 'rgba(255,255,255,0.15)'; e.target.style.background = 'rgba(255,255,255,0.08)'; }}
                 />
               ))}
             </div>
 
-            <button type="submit" disabled={otpLoading} className="btn btn-primary" style={{ width: '100%', marginBottom: 16 }}>
+            <button type="submit" disabled={otpLoading} style={{ width: '100%', marginBottom: 16, padding: '14px', borderRadius: 12, background: '#BBC863', color: '#1E4632', border: 'none', fontWeight: 800, fontSize: 15, cursor: 'pointer', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = '#d2df78'} onMouseLeave={e => e.currentTarget.style.background = '#BBC863'}>
               {otpLoading ? 'Verifying...' : 'Verify & Create Account'}
             </button>
 
@@ -271,7 +282,7 @@ export default function RegisterPage() {
                   border: 'none',
                   cursor: resendCooldown > 0 ? 'default' : 'pointer',
                   fontSize: 13,
-                  color: resendCooldown > 0 ? 'var(--orvo-text-muted)' : 'var(--orvo-primary-light)',
+                  color: resendCooldown > 0 ? 'rgba(255,255,255,0.4)' : '#BBC863',
                   fontWeight: 600,
                   padding: 0,
                 }}
@@ -286,7 +297,7 @@ export default function RegisterPage() {
                 onClick={() => { setStep('form'); setOtp(['', '', '', '', '', '']); setError(''); }}
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer',
-                  fontSize: 13, color: 'var(--orvo-text-muted)', padding: 0,
+                  fontSize: 13, color: 'rgba(255,255,255,0.5)', padding: 0,
                 }}
               >
                 ← Change email or details

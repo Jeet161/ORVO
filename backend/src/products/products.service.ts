@@ -40,11 +40,17 @@ export class ProductsService {
         ...(Object.keys(priceFilter).length > 0 && { price: priceFilter }),
         ...(sellerRegion && { seller: { region: sellerRegion } }),
         ...(search && {
-          OR: [
-            { title: { contains: search, mode: 'insensitive' } },
-            { description: { contains: search, mode: 'insensitive' } },
-            { tags: { contains: search, mode: 'insensitive' } },
-          ],
+          AND: search
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .map((word) => ({
+              OR: [
+                { title: { contains: word, mode: 'insensitive' } },
+                { description: { contains: word, mode: 'insensitive' } },
+                { tags: { contains: word, mode: 'insensitive' } },
+              ],
+            })),
         }),
       },
       orderBy,

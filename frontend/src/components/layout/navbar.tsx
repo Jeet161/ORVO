@@ -57,7 +57,7 @@ export function Navbar() {
 
   const dashLink = getDashboardLink();
 
-  if (pathname === '/seller/apply' || pathname.startsWith('/seller/dashboard') || pathname.startsWith('/seller/products')) {
+  if (pathname.startsWith('/auth') || pathname === '/seller/apply' || pathname.startsWith('/seller/dashboard') || pathname.startsWith('/seller/products')) {
     return null;
   }
 

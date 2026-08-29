@@ -12,27 +12,27 @@ interface ImgFile { dataUrl: string; name: string; }
 // ─── Step Progress Bar ────────────────────────────────────────────────────────
 function StepBar({ step, total, labels }: { step: number; total: number; labels: string[] }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 32 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 40 }}>
       {labels.map((label, i) => {
         const done = i < step;
         const active = i === step;
         return (
           <div key={i} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
               <div style={{
-                width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontWeight: 800, fontSize: 14, transition: 'all 0.3s',
-                background: done ? '#BBC863' : active ? '#1E4632' : 'rgba(255,255,255,0.06)',
+                width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 800, fontSize: 15, transition: 'all 0.3s',
+                background: done ? '#BBC863' : active ? 'rgba(187,200,99,0.15)' : 'rgba(255,255,255,0.04)',
                 color: done ? '#0A1A0F' : active ? '#BBC863' : 'rgba(255,255,255,0.3)',
-                border: active ? '2px solid #BBC863' : done ? 'none' : '2px solid rgba(255,255,255,0.1)',
-                boxShadow: active ? '0 0 0 4px rgba(187,200,99,0.15)' : 'none',
+                border: active ? '2px solid #BBC863' : done ? 'none' : '1px solid rgba(255,255,255,0.12)',
+                boxShadow: active ? '0 0 16px rgba(187,200,99,0.25)' : 'none',
               }}>
                 {done ? '✓' : i + 1}
               </div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: active ? '#BBC863' : done ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.5, whiteSpace: 'nowrap' }}>{label}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: active ? '#BBC863' : done ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.2, whiteSpace: 'nowrap' }}>{label}</span>
             </div>
             {i < total - 1 && (
-              <div style={{ flex: 1, height: 2, background: i < step ? '#BBC863' : 'rgba(255,255,255,0.08)', margin: '0 8px', marginBottom: 22, transition: 'background 0.3s' }} />
+              <div style={{ flex: 1, height: 2, background: i < step ? '#BBC863' : 'rgba(255,255,255,0.08)', margin: '0 16px', marginBottom: 26, transition: 'background 0.3s' }} />
             )}
           </div>
         );
@@ -130,21 +130,66 @@ function ImageDropZone({ images, onAdd, onRemove, onSetPrimary }: {
 function Field({ label, hint, required, children }: { label: string; hint?: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <label style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: 1 }}>
+      <label style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 1.2 }}>
         {label}{required && <span style={{ color: '#BBC863', marginLeft: 3 }}>*</span>}
       </label>
       {children}
-      {hint && <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', margin: 0 }}>{hint}</p>}
+      {hint && <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', margin: 0, paddingLeft: 4 }}>{hint}</p>}
     </div>
   );
 }
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '12px 14px', borderRadius: 10,
-  border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.05)',
+  width: '100%', padding: '14px 16px', borderRadius: 12,
+  border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)',
   color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box',
-  fontFamily: 'inherit', transition: 'border-color 0.2s',
+  fontFamily: 'inherit', transition: 'all 0.2s',
 };
+
+function CustomInput({ style, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      style={{
+        ...inputStyle,
+        ...style
+      }}
+      onFocus={e => {
+        e.target.style.borderColor = '#BBC863';
+        e.target.style.background = 'rgba(255,255,255,0.12)';
+        e.target.style.boxShadow = '0 0 12px rgba(187,200,99,0.15)';
+      }}
+      onBlur={e => {
+        e.target.style.borderColor = 'rgba(255,255,255,0.15)';
+        e.target.style.background = 'rgba(255,255,255,0.08)';
+        e.target.style.boxShadow = 'none';
+      }}
+    />
+  );
+}
+
+function CustomTextArea({ style, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea
+      {...props}
+      style={{
+        ...inputStyle,
+        resize: 'vertical',
+        ...style
+      }}
+      onFocus={e => {
+        e.target.style.borderColor = '#BBC863';
+        e.target.style.background = 'rgba(255,255,255,0.12)';
+        e.target.style.boxShadow = '0 0 12px rgba(187,200,99,0.15)';
+      }}
+      onBlur={e => {
+        e.target.style.borderColor = 'rgba(255,255,255,0.15)';
+        e.target.style.background = 'rgba(255,255,255,0.08)';
+        e.target.style.boxShadow = 'none';
+      }}
+    />
+  );
+}
 
 // ─── Custom Category Dropdown ─────────────────────────────────────────────────
 function CategorySelect({ categories, value, onChange }: { categories: Category[]; value: string; onChange: (id: string) => void }) {
@@ -167,7 +212,12 @@ function CategorySelect({ categories, value, onChange }: { categories: Category[
           ...inputStyle, textAlign: 'left', cursor: 'pointer', display: 'flex',
           justifyContent: 'space-between', alignItems: 'center',
           color: selected ? '#fff' : 'rgba(255,255,255,0.3)',
+          boxShadow: open ? '0 0 12px rgba(187,200,99,0.15)' : 'none',
+          borderColor: open ? '#BBC863' : 'rgba(255,255,255,0.15)',
+          background: open ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.08)',
         }}
+        onMouseEnter={e => { if (!open) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
       >
         <span>{selected ? selected.name : '— Select a category —'}</span>
         <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
@@ -175,9 +225,10 @@ function CategorySelect({ categories, value, onChange }: { categories: Category[
       {open && (
         <div style={{
           position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 999,
-          background: '#1a2e1f', border: '1px solid rgba(255,255,255,0.12)',
-          borderRadius: 12, overflow: 'hidden', boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+          background: '#0D2013', border: '1px solid rgba(255,255,255,0.12)',
+          borderRadius: 14, overflow: 'hidden', boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
           maxHeight: 260, overflowY: 'auto',
+          backdropFilter: 'blur(16px)',
         }}>
           {categories.map(cat => (
             <button
@@ -337,7 +388,15 @@ export default function NewProductPage() {
         <StepBar step={step} total={STEPS.length} labels={STEPS} />
 
         {/* Card */}
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '36px 40px', maxWidth: 720 }}>
+        <div style={{ 
+          background: 'rgba(255,255,255,0.05)', 
+          border: '1px solid rgba(255,255,255,0.12)', 
+          borderRadius: 24, 
+          padding: '48px 44px', 
+          maxWidth: 720,
+          backdropFilter: 'blur(32px)',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+        }}>
 
           {/* ── STEP 0: Basic Info ── */}
           {step === 0 && (
@@ -345,18 +404,18 @@ export default function NewProductPage() {
               <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: '#fff', margin: 0 }}>Basic Information</h2>
 
               <Field label="Product Title" required>
-                <input style={inputStyle} placeholder="e.g. Handwoven Silk Saree – Assam Blue" value={form.title} onChange={set('title')} onBlur={autoSlug} />
+                <CustomInput placeholder="e.g. Handwoven Silk Saree – Assam Blue" value={form.title} onChange={set('title')} onBlur={autoSlug} />
               </Field>
 
               <Field label="URL Slug" required hint="Auto-generated from title. Must be unique.">
                 <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: 'rgba(255,255,255,0.3)', fontWeight: 600, pointerEvents: 'none' }}>products/</span>
-                  <input style={{ ...inputStyle, paddingLeft: 80 }} placeholder="handwoven-silk-saree" value={form.slug} onChange={set('slug')} />
+                  <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: 'rgba(255,255,255,0.3)', fontWeight: 700, pointerEvents: 'none' }}>products/</span>
+                  <CustomInput style={{ paddingLeft: 84 }} placeholder="handwoven-silk-saree" value={form.slug} onChange={set('slug')} />
                 </div>
               </Field>
 
               <Field label="Description" required>
-                <textarea style={{ ...inputStyle, resize: 'vertical', minHeight: 120 }} placeholder="Describe your product — materials, dimensions, use case, what makes it special..." value={form.description} onChange={set('description')} rows={5} />
+                <CustomTextArea placeholder="Describe your product — materials, dimensions, use case, what makes it special..." value={form.description} onChange={set('description')} rows={5} />
               </Field>
 
               <Field label="Category" required>
@@ -368,11 +427,11 @@ export default function NewProductPage() {
               </Field>
 
               <Field label="Tags" hint="Comma-separated. Helps buyers find your listing.">
-                <input style={inputStyle} placeholder="silk, handmade, assam, traditional..." value={form.tags} onChange={set('tags')} />
+                <CustomInput placeholder="silk, handmade, assam, traditional..." value={form.tags} onChange={set('tags')} />
               </Field>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-                <button disabled={!canStep1} onClick={() => setStep(1)} style={{ padding: '13px 32px', borderRadius: 12, border: 'none', background: canStep1 ? '#BBC863' : 'rgba(255,255,255,0.08)', color: canStep1 ? '#0A1A0F' : 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: 15, cursor: canStep1 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
+                <button disabled={!canStep1} onClick={() => setStep(1)} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: canStep1 ? '#BBC863' : 'rgba(255,255,255,0.08)', color: canStep1 ? '#0A1A0F' : 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: 15, cursor: canStep1 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }} onMouseEnter={e => { if (canStep1) e.currentTarget.style.background = '#d2df78'; }} onMouseLeave={e => { if (canStep1) e.currentTarget.style.background = '#BBC863'; }}>
                   Next: Pricing & Stock →
                 </button>
               </div>
@@ -387,18 +446,18 @@ export default function NewProductPage() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 <Field label="Selling Price (₹)" required>
                   <div style={{ position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', fontWeight: 700, pointerEvents: 'none' }}>₹</span>
-                    <input style={{ ...inputStyle, paddingLeft: 36 }} type="number" min="1" step="0.01" placeholder="0.00" value={pricing.price} onChange={setP('price')} />
+                    <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', fontWeight: 700, pointerEvents: 'none' }}>₹</span>
+                    <CustomInput style={{ paddingLeft: 38 }} type="number" min="1" step="0.01" placeholder="0.00" value={pricing.price} onChange={setP('price')} />
                   </div>
                 </Field>
                 <Field label="Available Stock" required>
-                  <input style={inputStyle} type="number" min="0" step="1" placeholder="0" value={pricing.stock} onChange={setP('stock')} />
+                  <CustomInput type="number" min="0" step="1" placeholder="0" value={pricing.stock} onChange={setP('stock')} />
                 </Field>
               </div>
 
               {/* Live preview */}
               {parseFloat(pricing.price) > 0 && (
-                <div style={{ background: 'rgba(187,200,99,0.07)', border: '1px solid rgba(187,200,99,0.15)', borderRadius: 12, padding: '16px 20px', display: 'flex', gap: 24 }}>
+                <div style={{ background: 'rgba(187,200,99,0.07)', border: '1px solid rgba(187,200,99,0.15)', borderRadius: 14, padding: '18px 22px', display: 'flex', gap: 24 }}>
                   <div>
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>Selling Price</div>
                     <div style={{ fontSize: 24, fontWeight: 900, color: '#BBC863' }}>₹{parseFloat(pricing.price).toLocaleString('en-IN')}</div>
@@ -411,8 +470,8 @@ export default function NewProductPage() {
               )}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-                <button onClick={() => setStep(0)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>← Back</button>
-                <button disabled={!canStep2} onClick={() => setStep(2)} style={{ padding: '13px 32px', borderRadius: 12, border: 'none', background: canStep2 ? '#BBC863' : 'rgba(255,255,255,0.08)', color: canStep2 ? '#0A1A0F' : 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: 15, cursor: canStep2 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
+                <button onClick={() => setStep(0)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>← Back</button>
+                <button disabled={!canStep2} onClick={() => setStep(2)} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: canStep2 ? '#BBC863' : 'rgba(255,255,255,0.08)', color: canStep2 ? '#0A1A0F' : 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: 15, cursor: canStep2 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }} onMouseEnter={e => { if (canStep2) e.currentTarget.style.background = '#d2df78'; }} onMouseLeave={e => { if (canStep2) e.currentTarget.style.background = '#BBC863'; }}>
                   Next: Photos →
                 </button>
               </div>
@@ -430,8 +489,8 @@ export default function NewProductPage() {
               <ImageDropZone images={images} onAdd={addImage} onRemove={removeImage} onSetPrimary={setPrimary} />
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-                <button onClick={() => setStep(1)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>← Back</button>
-                <button disabled={!canStep3} onClick={() => setStep(3)} style={{ padding: '13px 32px', borderRadius: 12, border: 'none', background: canStep3 ? '#BBC863' : 'rgba(255,255,255,0.08)', color: canStep3 ? '#0A1A0F' : 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: 15, cursor: canStep3 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}>
+                <button onClick={() => setStep(1)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>← Back</button>
+                <button disabled={!canStep3} onClick={() => setStep(3)} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: canStep3 ? '#BBC863' : 'rgba(255,255,255,0.08)', color: canStep3 ? '#0A1A0F' : 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: 15, cursor: canStep3 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }} onMouseEnter={e => { if (canStep3) e.currentTarget.style.background = '#d2df78'; }} onMouseLeave={e => { if (canStep3) e.currentTarget.style.background = '#BBC863'; }}>
                   Review & Submit →
                 </button>
               </div>
@@ -483,8 +542,8 @@ export default function NewProductPage() {
               {error && <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: 13, fontWeight: 600 }}>⚠ {error}</div>}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-                <button onClick={() => setStep(2)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>← Back</button>
-                <button onClick={handleSubmit} disabled={submitting} style={{ padding: '13px 32px', borderRadius: 12, border: 'none', background: submitting ? 'rgba(255,255,255,0.08)' : '#BBC863', color: submitting ? 'rgba(255,255,255,0.25)' : '#0A1A0F', fontWeight: 900, fontSize: 15, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }}>
+                <button onClick={() => setStep(2)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>← Back</button>
+                <button onClick={handleSubmit} disabled={submitting} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: submitting ? 'rgba(255,255,255,0.08)' : '#BBC863', color: submitting ? 'rgba(255,255,255,0.25)' : '#0A1A0F', fontWeight: 900, fontSize: 15, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => { if (!submitting) e.currentTarget.style.background = '#d2df78'; }} onMouseLeave={e => { if (!submitting) e.currentTarget.style.background = '#BBC863'; }}>
                   {submitting ? <><span style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.2)', borderTop: '2px solid #0A1A0F', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} /> Submitting…</> : '🚀 Submit Listing'}
                 </button>
               </div>
