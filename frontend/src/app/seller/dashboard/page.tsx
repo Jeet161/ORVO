@@ -40,10 +40,13 @@ export default function SellerDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingOrder, setUpdatingOrder] = useState<string | null>(null);
+  const [notOnboarded, setNotOnboarded] = useState(false);
+  const [onboardLoading, setOnboardLoading] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user || user.role !== 'SELLER') { router.push('/'); return; }
+    if (!user || (user.role !== 'SELLER' && user.role !== 'BUYER')) { router.push('/'); return; }
+    
     Promise.all([
       sellersApi.getAnalytics(),
       productsApi.getSellerProducts(),
@@ -52,8 +55,22 @@ export default function SellerDashboardPage() {
       setAnalytics(a);
       setProducts(p);
       setOrders(o);
+    }).catch((err) => {
+      setNotOnboarded(true);
     }).finally(() => setLoading(false));
   }, [user, authLoading]);
+
+  const handleOnboard = async () => {
+    setOnboardLoading(true);
+    try {
+      await sellersApi.studentOnboard();
+      window.location.reload();
+    } catch (e: any) {
+      alert(e.message || 'Onboarding failed');
+    } finally {
+      setOnboardLoading(false);
+    }
+  };
 
   const updateOrderStatus = useCallback(async (orderId: string, status: string) => {
     setUpdatingOrder(orderId);
@@ -63,7 +80,7 @@ export default function SellerDashboardPage() {
     } finally { setUpdatingOrder(null); }
   }, []);
 
-  if (loading || authLoading) return (
+  if (authLoading || (loading && !notOnboarded)) return (
     <div style={{ display: 'flex', minHeight: '80vh', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
         <div style={{ width: 40, height: 40, border: '3px solid var(--orvo-border)', borderTop: '3px solid var(--orvo-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
@@ -71,6 +88,35 @@ export default function SellerDashboardPage() {
       </div>
     </div>
   );
+
+  if (notOnboarded) {
+    return (
+      <div style={{ display: 'flex', minHeight: '80vh', alignItems: 'center', justifyContent: 'center', background: 'var(--orvo-bg)', padding: 24 }}>
+        <div style={{
+          background: 'var(--orvo-surface)', border: '1px solid var(--orvo-border)',
+          borderRadius: 24, padding: '48px 36px', maxWidth: 480, textAlign: 'center',
+          boxShadow: 'var(--shadow-card)'
+        }}>
+          <span style={{ fontSize: 48, display: 'block', marginBottom: 16 }}>🏫</span>
+          <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 900, color: 'var(--orvo-text)', marginBottom: 12 }}>Campus Corner</h2>
+          <p style={{ color: 'var(--orvo-text-muted)', fontSize: 14, lineHeight: 1.6, marginBottom: 28 }}>
+            Activate your student corner to sell or rent used books, hostel sharing essentials, cycles, and lab equipment to fellow students!
+          </p>
+          <button
+            onClick={handleOnboard}
+            disabled={onboardLoading}
+            style={{
+              width: '100%', padding: '14px', borderRadius: 12, background: 'var(--orvo-primary)',
+              color: '#fff', border: 'none', fontWeight: 800, fontSize: 15, cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
+          >
+            {onboardLoading ? 'Activating…' : '⚡ Activate Student Corner'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const pendingOrders = orders.filter(o => o.status === 'PENDING').length;
 
@@ -89,8 +135,8 @@ export default function SellerDashboardPage() {
         background: '#1E4632',
         display: 'flex', flexDirection: 'column',
         padding: '36px 0',
-        position: 'sticky', top: 64,
-        height: 'calc(100vh - 64px)', overflowY: 'auto',
+        position: 'sticky', top: 0,
+        height: '100vh', overflowY: 'auto',
       }}>
         {/* Brand */}
         <div style={{ padding: '0 22px 28px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>

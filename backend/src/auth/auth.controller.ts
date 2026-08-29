@@ -14,9 +14,12 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { GetUser } from './get-user.decorator';
 import { OAuth2Client } from 'google-auth-library';
 
+import { Throttle } from '@nestjs/throttler';
+
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 @Controller('auth')
+@Throttle({ default: { limit: 10, ttl: 60000 } })
 export class AuthController {
   constructor(private authService: AuthService) {}
 

@@ -22,6 +22,10 @@ export class ProductsController {
     @Query('sellerRegion') sellerRegion?: string,
     @Query('search') search?: string,
     @Query('sortBy') sortBy?: 'price_asc' | 'price_desc' | 'newest',
+    @Query('isStudentListing') isStudentListing?: string,
+    @Query('condition') condition?: string,
+    @Query('listingType') listingType?: string,
+    @Query('location') location?: string,
   ) {
     return this.productsService.getPublicProducts({
       category,
@@ -30,6 +34,10 @@ export class ProductsController {
       sellerRegion,
       search,
       sortBy,
+      isStudentListing: isStudentListing === 'true',
+      condition,
+      listingType,
+      location,
     });
   }
 
@@ -40,7 +48,7 @@ export class ProductsController {
 
   @Get('seller/me')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SELLER)
+  @Roles(Role.SELLER, Role.BUYER)
   async getSellerProducts(@GetUser('id') userId: string) {
     const seller = await this.sellersService.getSellerProfile(userId);
     return this.productsService.getSellerProducts(seller.id);
@@ -48,48 +56,38 @@ export class ProductsController {
 
   @Post('seller/me')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SELLER)
+  @Roles(Role.SELLER, Role.BUYER)
   async createProduct(
     @GetUser('id') userId: string,
-    @Body() body: {
-      categoryId: string;
-      title: string;
-      slug: string;
-      description: string;
-      price: number;
-      stock: number;
-      tags?: string;
-      images: string[];
-    },
+    @GetUser('role') role: Role,
+    @Body() body: any,
   ) {
     const seller = await this.sellersService.getSellerProfile(userId);
+    if (role === Role.BUYER) {
+      body.isStudentListing = true;
+    }
     return this.productsService.create(seller.id, body);
   }
 
   @Put('seller/me/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SELLER)
+  @Roles(Role.SELLER, Role.BUYER)
   async updateProduct(
     @GetUser('id') userId: string,
+    @GetUser('role') role: Role,
     @Param('id') productId: string,
-    @Body() body: {
-      categoryId?: string;
-      title?: string;
-      slug?: string;
-      description?: string;
-      price?: number;
-      stock?: number;
-      tags?: string;
-      images?: string[];
-    },
+    @Body() body: any,
   ) {
     const seller = await this.sellersService.getSellerProfile(userId);
+    if (role === Role.BUYER) {
+      body.isStudentListing = true;
+    }
     return this.productsService.update(productId, seller.id, body);
   }
 
   @Delete('seller/me/:id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.SELLER)
+  @Roles(Role.SELLER, Role.BUYER)
   async deleteProduct(
     @GetUser('id') userId: string,
     @Param('id') productId: string,

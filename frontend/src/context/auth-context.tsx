@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  loginGoogle: (idToken: string) => Promise<void>;
+  login: (email: string, password: string, redirectUrl?: string | null) => Promise<void>;
+  loginGoogle: (idToken: string, redirectUrl?: string | null) => Promise<void>;
   register: (email: string, name: string, password: string, otpCode?: string) => Promise<void>;
   logout: () => void;
   isAdmin: boolean;
@@ -43,23 +43,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, redirectUrl?: string | null) => {
     const res = await authApi.login(email, password);
     localStorage.setItem('orvo_token', res.accessToken);
     setUser(res.user);
-    // Redirect based on role
-    if (res.user.role === 'ADMIN') router.push('/admin/dashboard');
-    else if (res.user.role === 'SELLER') router.push('/seller/dashboard');
-    else router.push('/');
+    if (redirectUrl) {
+      router.push(redirectUrl);
+    } else {
+      if (res.user.role === 'ADMIN') router.push('/admin/dashboard');
+      else if (res.user.role === 'SELLER') router.push('/seller/dashboard');
+      else router.push('/');
+    }
   };
 
-  const loginGoogle = async (idToken: string) => {
+  const loginGoogle = async (idToken: string, redirectUrl?: string | null) => {
     const res = await authApi.loginGoogle(idToken);
     localStorage.setItem('orvo_token', res.accessToken);
     setUser(res.user);
-    if (res.user.role === 'ADMIN') router.push('/admin/dashboard');
-    else if (res.user.role === 'SELLER') router.push('/seller/dashboard');
-    else router.push('/');
+    if (redirectUrl) {
+      router.push(redirectUrl);
+    } else {
+      if (res.user.role === 'ADMIN') router.push('/admin/dashboard');
+      else if (res.user.role === 'SELLER') router.push('/seller/dashboard');
+      else router.push('/');
+    }
   };
 
   const register = async (email: string, name: string, password: string, otpCode?: string) => {

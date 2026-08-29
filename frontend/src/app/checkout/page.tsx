@@ -27,7 +27,7 @@ interface BuyNowItem {
 }
 
 function CheckoutContent() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isBuyNow = searchParams.get('mode') === 'buynow';
@@ -48,7 +48,11 @@ function CheckoutContent() {
   const [addressError, setAddressError] = useState('');
 
   useEffect(() => {
-    if (!user) { router.push('/auth/login'); return; }
+    if (authLoading) return;
+    if (!user) {
+      router.push(`/auth/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+      return;
+    }
 
     // For buy-now, read from sessionStorage
     if (isBuyNow) {
@@ -72,7 +76,7 @@ function CheckoutContent() {
         if (addrs.length === 0) setShowAddressForm(true);
       })
       .finally(() => setLoading(false));
-  }, [user]);
+  }, [user, authLoading]);
 
   // Compute subtotal
   const subtotal = isBuyNow

@@ -1,6 +1,6 @@
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider  = "sqlite"
+  url       = "file:./dev.db"
 }
 
 generator client {
@@ -65,6 +65,8 @@ model User {
   orders          Order[]
   reviews         Review[]
   notifications   Notification[]
+  sentMessages     ChatMessage[]  @relation("SentMessages")
+  receivedMessages ChatMessage[]  @relation("ReceivedMessages")
 }
 
 model Address {
@@ -118,18 +120,22 @@ model Category {
 }
 
 model Product {
-  id           String        @id @default(uuid())
-  sellerId     String
-  categoryId   String
-  title        String
-  slug         String        @unique
-  description  String
-  price        Float
-  stock        Int
-  status       ProductStatus @default(PENDING)
-  tags         String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id               String        @id @default(uuid())
+  sellerId         String
+  categoryId       String
+  title            String
+  slug             String        @unique
+  description      String
+  price            Float
+  stock            Int
+  status           ProductStatus @default(PENDING)
+  tags             String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  isStudentListing Boolean       @default(false)
+  condition        String?
+  listingType      String?       @default("SELL")
+  location         String?
 
   seller       SellerProfile  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   category     Category       @relation(fields: [categoryId], references: [id])
@@ -138,6 +144,7 @@ model Product {
   wishlistedBy WishlistItem[]
   orderItems   OrderItem[]
   reviews      Review[]
+  chatMessages ChatMessage[]
 }
 
 model ProductImage {
@@ -260,4 +267,18 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model ChatMessage {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  productId  String?
+  message    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender     User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  product    Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 }

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { productsApi, categoriesApi, Category } from '@/lib/api';
 import { useAuth } from '@/context/auth-context';
@@ -22,17 +22,17 @@ function StepBar({ step, total, labels }: { step: number; total: number; labels:
               <div style={{
                 width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontWeight: 800, fontSize: 15, transition: 'all 0.3s',
-                background: done ? '#BBC863' : active ? 'rgba(187,200,99,0.15)' : 'rgba(255,255,255,0.04)',
-                color: done ? '#0A1A0F' : active ? '#BBC863' : 'rgba(255,255,255,0.3)',
-                border: active ? '2px solid #BBC863' : done ? 'none' : '1px solid rgba(255,255,255,0.12)',
-                boxShadow: active ? '0 0 16px rgba(187,200,99,0.25)' : 'none',
+                background: done ? 'var(--orvo-primary)' : active ? 'var(--orvo-surface-3)' : 'var(--orvo-surface)',
+                color: done ? '#fff' : active ? 'var(--orvo-primary)' : 'var(--orvo-text-faint)',
+                border: active ? '2px solid var(--orvo-primary)' : done ? 'none' : '1px solid var(--orvo-border)',
+                boxShadow: active ? 'var(--shadow-glow)' : 'none',
               }}>
                 {done ? '✓' : i + 1}
               </div>
-              <span style={{ fontSize: 11, fontWeight: 800, color: active ? '#BBC863' : done ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.2, whiteSpace: 'nowrap' }}>{label}</span>
+              <span style={{ fontSize: 11, fontWeight: 800, color: active ? 'var(--orvo-primary)' : done ? 'var(--orvo-text)' : 'var(--orvo-text-faint)', textTransform: 'uppercase', letterSpacing: 1.2, whiteSpace: 'nowrap' }}>{label}</span>
             </div>
             {i < total - 1 && (
-              <div style={{ flex: 1, height: 2, background: i < step ? '#BBC863' : 'rgba(255,255,255,0.08)', margin: '0 16px', marginBottom: 26, transition: 'background 0.3s' }} />
+              <div style={{ flex: 1, height: 2, background: i < step ? 'var(--orvo-primary)' : 'var(--orvo-border)', margin: '0 16px', marginBottom: 26, transition: 'background 0.3s' }} />
             )}
           </div>
         );
@@ -76,15 +76,15 @@ function ImageDropZone({ images, onAdd, onRemove, onSetPrimary }: {
           onDragLeave={() => setDragging(false)}
           onDrop={onDrop}
           style={{
-            border: `2px dashed ${dragging ? '#BBC863' : 'rgba(255,255,255,0.12)'}`,
+            border: `2px dashed ${dragging ? 'var(--orvo-primary)' : 'var(--orvo-border-strong)'}`,
             borderRadius: 16, padding: '48px 24px', textAlign: 'center', cursor: 'pointer',
-            background: dragging ? 'rgba(187,200,99,0.05)' : 'rgba(255,255,255,0.02)',
+            background: dragging ? 'var(--orvo-surface-3)' : 'var(--orvo-surface-2)',
             transition: 'all 0.2s',
           }}
         >
           <div style={{ fontSize: 40, marginBottom: 12 }}>📸</div>
-          <div style={{ fontWeight: 700, fontSize: 15, color: 'rgba(255,255,255,0.8)', marginBottom: 6 }}>Drop images here or click to browse</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>PNG, JPG, WEBP — max 5 MB each. First image = main photo.</div>
+          <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--orvo-text)', marginBottom: 6 }}>Drop images here or click to browse</div>
+          <div style={{ fontSize: 12, color: 'var(--orvo-text-muted)' }}>PNG, JPG, WEBP — max 5 MB each. First image = main photo.</div>
         </div>
       )}
 
@@ -92,12 +92,12 @@ function ImageDropZone({ images, onAdd, onRemove, onSetPrimary }: {
       {images.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 12 }}>
           {images.map((img, i) => (
-            <div key={i} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', aspectRatio: '1', border: i === 0 ? '2px solid #BBC863' : '2px solid rgba(255,255,255,0.1)' }}>
+            <div key={i} style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', aspectRatio: '1', border: i === 0 ? '2px solid var(--orvo-primary)' : '2px solid var(--orvo-border)' }}>
               <img src={img.dataUrl} alt={img.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              {i === 0 && <span style={{ position: 'absolute', top: 6, left: 6, background: '#BBC863', color: '#0A1A0F', fontSize: 9, fontWeight: 900, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>MAIN</span>}
+              {i === 0 && <span style={{ position: 'absolute', top: 6, left: 6, background: 'var(--orvo-primary)', color: '#fff', fontSize: 9, fontWeight: 900, padding: '2px 7px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>MAIN</span>}
               <div style={{ position: 'absolute', top: 5, right: 5, display: 'flex', gap: 3 }}>
-                {i !== 0 && <button type="button" onClick={() => onSetPrimary(i)} title="Set as main" style={{ width: 22, height: 22, borderRadius: 5, border: 'none', background: 'rgba(0,0,0,0.7)', color: '#BBC863', fontSize: 10, cursor: 'pointer' }}>⭐</button>}
-                <button type="button" onClick={() => onRemove(i)} style={{ width: 22, height: 22, borderRadius: 5, border: 'none', background: 'rgba(185,28,28,0.85)', color: '#fff', fontSize: 14, cursor: 'pointer', lineHeight: 1 }}>×</button>
+                {i !== 0 && <button type="button" onClick={() => onSetPrimary(i)} title="Set as main" style={{ width: 22, height: 22, borderRadius: 5, border: 'none', background: 'rgba(255,255,255,0.9)', color: 'var(--orvo-primary)', fontSize: 10, cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.15)' }}>⭐</button>}
+                <button type="button" onClick={() => onRemove(i)} style={{ width: 22, height: 22, borderRadius: 5, border: 'none', background: 'rgba(185,28,28,0.95)', color: '#fff', fontSize: 14, cursor: 'pointer', lineHeight: 1 }}>×</button>
               </div>
             </div>
           ))}
@@ -107,10 +107,10 @@ function ImageDropZone({ images, onAdd, onRemove, onSetPrimary }: {
             onDragOver={e => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
             onDrop={onDrop}
-            style={{ aspectRatio: '1', borderRadius: 12, border: `2px dashed ${dragging ? '#BBC863' : 'rgba(255,255,255,0.12)'}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'rgba(255,255,255,0.02)', gap: 4, transition: 'all 0.2s' }}
+            style={{ aspectRatio: '1', borderRadius: 12, border: `2px dashed ${dragging ? 'var(--orvo-primary)' : 'var(--orvo-border)'}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--orvo-surface-2)', gap: 4, transition: 'all 0.2s' }}
           >
-            <span style={{ fontSize: 22, color: 'rgba(255,255,255,0.35)' }}>+</span>
-            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>Add more</span>
+            <span style={{ fontSize: 22, color: 'var(--orvo-text-faint)' }}>+</span>
+            <span style={{ fontSize: 10, color: 'var(--orvo-text-muted)', fontWeight: 600 }}>Add more</span>
           </div>
         </div>
       )}
@@ -118,9 +118,9 @@ function ImageDropZone({ images, onAdd, onRemove, onSetPrimary }: {
       <input ref={inputRef} type="file" accept="image/*" multiple style={{ display: 'none' }}
         onChange={e => Array.from(e.target.files ?? []).forEach(processFile)} />
 
-      {err && <p style={{ fontSize: 12, color: '#f87171', marginTop: 8, fontWeight: 600 }}>⚠ {err}</p>}
+      {err && <p style={{ fontSize: 12, color: 'var(--orvo-danger)', marginTop: 8, fontWeight: 600 }}>⚠ {err}</p>}
       {images.length > 0 && (
-        <button type="button" onClick={() => inputRef.current?.click()} style={{ marginTop: 12, padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>+ Add more images</button>
+        <button type="button" onClick={() => inputRef.current?.click()} style={{ marginTop: 12, padding: '8px 16px', borderRadius: 8, border: '1px solid var(--orvo-border)', background: 'var(--orvo-surface-2)', color: 'var(--orvo-text-muted)', fontSize: 12, cursor: 'pointer', fontWeight: 600 }}>+ Add more images</button>
       )}
     </div>
   );
@@ -130,19 +130,19 @@ function ImageDropZone({ images, onAdd, onRemove, onSetPrimary }: {
 function Field({ label, hint, required, children }: { label: string; hint?: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <label style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: 1.2 }}>
-        {label}{required && <span style={{ color: '#BBC863', marginLeft: 3 }}>*</span>}
+      <label style={{ fontSize: 11, fontWeight: 800, color: 'var(--orvo-text-muted)', textTransform: 'uppercase', letterSpacing: 1.2 }}>
+        {label}{required && <span style={{ color: 'var(--orvo-primary)', marginLeft: 3 }}>*</span>}
       </label>
       {children}
-      {hint && <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', margin: 0, paddingLeft: 4 }}>{hint}</p>}
+      {hint && <p style={{ fontSize: 11, color: 'var(--orvo-text-faint)', margin: 0, paddingLeft: 4 }}>{hint}</p>}
     </div>
   );
 }
 
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '14px 16px', borderRadius: 12,
-  border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.08)',
-  color: '#fff', fontSize: 14, outline: 'none', boxSizing: 'border-box',
+  border: '1px solid var(--orvo-border)', background: 'var(--orvo-surface)',
+  color: 'var(--orvo-text)', fontSize: 14, outline: 'none', boxSizing: 'border-box',
   fontFamily: 'inherit', transition: 'all 0.2s',
 };
 
@@ -155,19 +155,20 @@ function CustomInput({ style, ...props }: React.InputHTMLAttributes<HTMLInputEle
         ...style
       }}
       onFocus={e => {
-        e.target.style.borderColor = '#BBC863';
-        e.target.style.background = 'rgba(255,255,255,0.12)';
-        e.target.style.boxShadow = '0 0 12px rgba(187,200,99,0.15)';
+        e.target.style.borderColor = 'var(--orvo-primary)';
+        e.target.style.background = 'var(--orvo-surface-2)';
+        e.target.style.boxShadow = 'var(--shadow-glow)';
       }}
       onBlur={e => {
-        e.target.style.borderColor = 'rgba(255,255,255,0.15)';
-        e.target.style.background = 'rgba(255,255,255,0.08)';
+        e.target.style.borderColor = 'var(--orvo-border)';
+        e.target.style.background = 'var(--orvo-surface)';
         e.target.style.boxShadow = 'none';
       }}
     />
   );
 }
 
+// ─── Custom Text Area ─────────────────────────────────────────────────────────
 function CustomTextArea({ style, ...props }: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
@@ -178,13 +179,13 @@ function CustomTextArea({ style, ...props }: React.TextareaHTMLAttributes<HTMLTe
         ...style
       }}
       onFocus={e => {
-        e.target.style.borderColor = '#BBC863';
-        e.target.style.background = 'rgba(255,255,255,0.12)';
-        e.target.style.boxShadow = '0 0 12px rgba(187,200,99,0.15)';
+        e.target.style.borderColor = 'var(--orvo-primary)';
+        e.target.style.background = 'var(--orvo-surface-2)';
+        e.target.style.boxShadow = 'var(--shadow-glow)';
       }}
       onBlur={e => {
-        e.target.style.borderColor = 'rgba(255,255,255,0.15)';
-        e.target.style.background = 'rgba(255,255,255,0.08)';
+        e.target.style.borderColor = 'var(--orvo-border)';
+        e.target.style.background = 'var(--orvo-surface)';
         e.target.style.boxShadow = 'none';
       }}
     />
@@ -211,24 +212,23 @@ function CategorySelect({ categories, value, onChange }: { categories: Category[
         style={{
           ...inputStyle, textAlign: 'left', cursor: 'pointer', display: 'flex',
           justifyContent: 'space-between', alignItems: 'center',
-          color: selected ? '#fff' : 'rgba(255,255,255,0.3)',
-          boxShadow: open ? '0 0 12px rgba(187,200,99,0.15)' : 'none',
-          borderColor: open ? '#BBC863' : 'rgba(255,255,255,0.15)',
-          background: open ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.08)',
+          color: selected ? 'var(--orvo-text)' : 'var(--orvo-text-faint)',
+          boxShadow: open ? 'var(--shadow-glow)' : 'none',
+          borderColor: open ? 'var(--orvo-primary)' : 'var(--orvo-border)',
+          background: open ? 'var(--orvo-surface-2)' : 'var(--orvo-surface)',
         }}
-        onMouseEnter={e => { if (!open) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; }}
-        onMouseLeave={e => { if (!open) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+        onMouseEnter={e => { if (!open) e.currentTarget.style.borderColor = 'var(--orvo-border-strong)'; }}
+        onMouseLeave={e => { if (!open) e.currentTarget.style.borderColor = 'var(--orvo-border)'; }}
       >
         <span>{selected ? selected.name : '— Select a category —'}</span>
-        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+        <span style={{ fontSize: 10, color: 'var(--orvo-text-muted)', transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
       </button>
       {open && (
         <div style={{
           position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 999,
-          background: '#0D2013', border: '1px solid rgba(255,255,255,0.12)',
-          borderRadius: 14, overflow: 'hidden', boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+          background: 'var(--orvo-surface)', border: '1px solid var(--orvo-border-strong)',
+          borderRadius: 14, overflow: 'hidden', boxShadow: 'var(--shadow-deep)',
           maxHeight: 260, overflowY: 'auto',
-          backdropFilter: 'blur(16px)',
         }}>
           {categories.map(cat => (
             <button
@@ -238,12 +238,12 @@ function CategorySelect({ categories, value, onChange }: { categories: Category[
               style={{
                 display: 'block', width: '100%', textAlign: 'left',
                 padding: '11px 16px', border: 'none', cursor: 'pointer',
-                background: value === cat.id ? 'rgba(187,200,99,0.12)' : 'transparent',
-                color: value === cat.id ? '#BBC863' : 'rgba(255,255,255,0.75)',
+                background: value === cat.id ? 'var(--orvo-surface-3)' : 'transparent',
+                color: value === cat.id ? 'var(--orvo-primary)' : 'var(--orvo-text)',
                 fontSize: 14, fontWeight: value === cat.id ? 700 : 400,
                 fontFamily: 'inherit', transition: 'background 0.15s',
               }}
-              onMouseEnter={e => { if (value !== cat.id) (e.target as HTMLButtonElement).style.background = 'rgba(255,255,255,0.05)'; }}
+              onMouseEnter={e => { if (value !== cat.id) (e.target as HTMLButtonElement).style.background = 'var(--orvo-surface-2)'; }}
               onMouseLeave={e => { if (value !== cat.id) (e.target as HTMLButtonElement).style.background = 'transparent'; }}
             >
               {value === cat.id ? '✓ ' : ''}{cat.name}
@@ -258,44 +258,65 @@ function CategorySelect({ categories, value, onChange }: { categories: Category[
 // ─── Main Page ────────────────────────────────────────────────────────────────
 const STEPS = ['Basic Info', 'Pricing & Stock', 'Photos', 'Review'];
 
-export default function NewProductPage() {
+function NewProductContent() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [step, setStep] = useState(0);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [form, setForm] = useState({ title: '', slug: '', description: '', categoryId: '', tags: '' });
+  const [form, setForm] = useState({
+    title: '',
+    slug: '',
+    description: '',
+    categoryId: '',
+    tags: '',
+    isStudentListing: false,
+    condition: 'GOOD',
+    listingType: 'SELL',
+    location: ''
+  });
   const [pricing, setPricing] = useState({ price: '', stock: '' });
   const [images, setImages] = useState<ImgFile[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Auto-set student listing based on query param or if user is a buyer
+  useEffect(() => {
+    const isStudent = searchParams.get('student') === 'true';
+    if (isStudent || user?.role === 'BUYER') {
+      setForm(f => ({ ...f, isStudentListing: true }));
+    }
+  }, [searchParams, user]);
   const [done, setDone] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
     if (!user) { router.push('/auth/login'); return; }
-    if (user.role !== 'SELLER') { router.push('/'); return; }
+    if (user.role !== 'SELLER' && user.role !== 'BUYER') { router.push('/'); return; }
     categoriesApi.getAll().then(setCategories);
   }, [user, authLoading]);
 
-  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-    setForm(f => ({ ...f, [field]: e.target.value }));
-
-  const setP = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setPricing(f => ({ ...f, [field]: e.target.value }));
-
-  const autoSlug = () => {
-    if (!form.slug && form.title)
-      setForm(f => ({ ...f, slug: f.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') }));
+  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm(f => ({ ...f, [k]: e.target.value }));
+  };
+  const setP = (k: keyof typeof pricing) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPricing(p => ({ ...p, [k]: e.target.value }));
   };
 
-  const addImage = useCallback((d: string, n: string) => setImages(imgs => [...imgs, { dataUrl: d, name: n }]), []);
+  const autoSlug = () => {
+    if (form.slug.trim()) return;
+    const s = form.title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    setForm(f => ({ ...f, slug: s }));
+  };
+
+  const addImage = useCallback((dataUrl: string, name: string) => setImages(imgs => [...imgs, { dataUrl, name }]), []);
   const removeImage = useCallback((i: number) => setImages(imgs => imgs.filter((_, idx) => idx !== i)), []);
   const setPrimary = useCallback((i: number) => setImages(imgs => { const c = [...imgs]; const [item] = c.splice(i, 1); return [item, ...c]; }), []);
 
   // Step validation
-  const canStep1 = form.title.trim() && form.slug.trim() && form.description.trim() && form.categoryId;
-  const canStep2 = parseFloat(pricing.price) > 0 && parseInt(pricing.stock) >= 0;
+  const canStep1 = form.title.trim() && form.slug.trim() && form.description.trim() && form.categoryId && (!form.isStudentListing || form.location.trim());
+  const canStep2 = parseFloat(pricing.price) >= 0 && parseInt(pricing.stock) >= 0;
   const canStep3 = images.length > 0;
 
   const handleSubmit = async () => {
@@ -306,10 +327,14 @@ export default function NewProductPage() {
         title: form.title,
         slug: form.slug,
         description: form.description,
-        price: parseFloat(pricing.price),
-        stock: parseInt(pricing.stock),
+        price: parseFloat(pricing.price) || 0,
+        stock: parseInt(pricing.stock) || 0,
         tags: form.tags || undefined,
         images: images.map(i => i.dataUrl),
+        isStudentListing: form.isStudentListing,
+        condition: form.isStudentListing ? form.condition : undefined,
+        listingType: form.isStudentListing ? form.listingType : undefined,
+        location: form.isStudentListing ? form.location : undefined,
       });
       setDone(true);
     } catch (e: any) {
@@ -319,7 +344,7 @@ export default function NewProductPage() {
 
   const selectedCat = categories.find(c => c.id === form.categoryId);
 
-  if (authLoading) return <div style={{ minHeight: '100vh', background: '#0A1A0F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: 36, height: 36, border: '3px solid rgba(255,255,255,0.1)', borderTop: '3px solid #BBC863', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /></div>;
+  if (authLoading) return <div style={{ minHeight: '100vh', background: 'var(--orvo-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: 36, height: 36, border: '3px solid var(--orvo-border)', borderTop: '3px solid var(--orvo-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /></div>;
 
   // ─── Sidebar ──────────────────────────────────────────────────────────────
   const Sidebar = () => (
@@ -356,16 +381,22 @@ export default function NewProductPage() {
 
   // ─── Success screen ───────────────────────────────────────────────────────
   if (done) return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0A1A0F' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--orvo-bg)' }}>
       <Sidebar />
       <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
         <div style={{ textAlign: 'center', maxWidth: 440 }}>
-          <div style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 24px', background: 'linear-gradient(135deg, #BBC863, #1E4632)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>✓</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 12 }}>Product Submitted!</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}>Your listing is <strong style={{ color: '#BBC863' }}>pending admin review</strong>. Once approved it goes live on the marketplace.</p>
+          <div style={{ width: 80, height: 80, borderRadius: '50%', margin: '0 auto 24px', background: 'linear-gradient(135deg, var(--orvo-primary-light), var(--orvo-primary-dark))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, color: '#fff', boxShadow: 'var(--shadow-glow)' }}>✓</div>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 28, fontWeight: 900, color: 'var(--orvo-text)', marginBottom: 12 }}>Product Submitted!</h1>
+          <p style={{ color: 'var(--orvo-text-muted)', fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}>
+            {form.isStudentListing ? (
+              <span>Your campus listing is <strong style={{ color: 'var(--orvo-primary)' }}>instantly approved and active</strong> on the Campus Marketplace!</span>
+            ) : (
+              <span>Your listing is <strong style={{ color: 'var(--orvo-primary)' }}>pending admin review</strong>. Once approved it goes live on the marketplace.</span>
+            )}
+          </p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            <button onClick={() => { setDone(false); setStep(0); setForm({ title: '', slug: '', description: '', categoryId: '', tags: '' }); setPricing({ price: '', stock: '' }); setImages([]); }} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', background: '#BBC863', color: '#0A1A0F', fontWeight: 800, cursor: 'pointer', fontSize: 14 }}>+ Add Another</button>
-            <Link href="/seller/dashboard" style={{ padding: '12px 24px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.12)', color: '#fff', textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>Go to Dashboard</Link>
+            <button onClick={() => { setDone(false); setStep(0); setForm({ title: '', slug: '', description: '', categoryId: '', tags: '', isStudentListing: false, condition: 'GOOD', listingType: 'SELL', location: '' }); setPricing({ price: '', stock: '' }); setImages([]); }} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', background: 'var(--orvo-primary)', color: '#fff', fontWeight: 800, cursor: 'pointer', fontSize: 14 }}>+ Add Another</button>
+            <Link href="/seller/dashboard" style={{ padding: '12px 24px', borderRadius: 10, border: '1px solid var(--orvo-border)', background: 'var(--orvo-surface)', color: 'var(--orvo-text)', textDecoration: 'none', fontWeight: 700, fontSize: 14 }}>Go to Dashboard</Link>
           </div>
         </div>
       </main>
@@ -373,15 +404,15 @@ export default function NewProductPage() {
   );
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#0A1A0F' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--orvo-bg)' }}>
       <Sidebar />
 
       <main style={{ flex: 1, overflowY: 'auto', padding: '40px 48px' }}>
         {/* Header */}
         <div style={{ marginBottom: 36 }}>
-          <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Seller HQ · New Listing</div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: 30, color: '#fff', margin: '0 0 4px' }}>List a New Product</h1>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 14 }}>Fill in each step — your product goes live after admin approval.</p>
+          <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--orvo-text-muted)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Seller HQ · New Listing</div>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: 30, color: 'var(--orvo-text)', margin: '0 0 4px' }}>List a New Product</h1>
+          <p style={{ color: 'var(--orvo-text-muted)', fontSize: 14 }}>Fill in each step — your product goes live after admin approval.</p>
         </div>
 
         {/* Step bar */}
@@ -389,19 +420,18 @@ export default function NewProductPage() {
 
         {/* Card */}
         <div style={{ 
-          background: 'rgba(255,255,255,0.05)', 
-          border: '1px solid rgba(255,255,255,0.12)', 
+          background: 'var(--orvo-surface-3)', 
+          border: '1px solid var(--orvo-border)', 
           borderRadius: 24, 
           padding: '48px 44px', 
           maxWidth: 720,
-          backdropFilter: 'blur(32px)',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
+          boxShadow: 'var(--shadow-card)',
         }}>
 
           {/* ── STEP 0: Basic Info ── */}
           {step === 0 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: '#fff', margin: 0 }}>Basic Information</h2>
+              <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: 'var(--orvo-text)', margin: 0 }}>Basic Information</h2>
 
               <Field label="Product Title" required>
                 <CustomInput placeholder="e.g. Handwoven Silk Saree – Assam Blue" value={form.title} onChange={set('title')} onBlur={autoSlug} />
@@ -409,7 +439,7 @@ export default function NewProductPage() {
 
               <Field label="URL Slug" required hint="Auto-generated from title. Must be unique.">
                 <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: 'rgba(255,255,255,0.3)', fontWeight: 700, pointerEvents: 'none' }}>products/</span>
+                  <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: 'var(--orvo-text-faint)', fontWeight: 700, pointerEvents: 'none' }}>products/</span>
                   <CustomInput style={{ paddingLeft: 84 }} placeholder="handwoven-silk-saree" value={form.slug} onChange={set('slug')} />
                 </div>
               </Field>
@@ -430,8 +460,59 @@ export default function NewProductPage() {
                 <CustomInput placeholder="silk, handmade, assam, traditional..." value={form.tags} onChange={set('tags')} />
               </Field>
 
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--orvo-surface-2)', padding: 16, borderRadius: 12, border: '1px solid var(--orvo-border)', margin: '10px 0' }}>
+                <input
+                  type="checkbox"
+                  id="isStudentListing"
+                  disabled={user?.role === 'BUYER'}
+                  checked={user?.role === 'BUYER' ? true : form.isStudentListing}
+                  onChange={e => setForm(f => ({ ...f, isStudentListing: e.target.checked }))}
+                  style={{ width: 18, height: 18, cursor: user?.role === 'BUYER' ? 'not-allowed' : 'pointer', accentColor: 'var(--orvo-primary)' }}
+                />
+                <label htmlFor="isStudentListing" style={{ fontWeight: 700, fontSize: 14, color: 'var(--orvo-text)', cursor: user?.role === 'BUYER' ? 'not-allowed' : 'pointer' }}>
+                  🏫 List as a Used Student/Campus Product {user?.role === 'BUYER' ? '(Required for Student accounts)' : ''}
+                </label>
+              </div>
+
+              {form.isStudentListing && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, background: 'var(--orvo-surface-2)', padding: 20, borderRadius: 16, border: '1px solid var(--orvo-border-strong)' }}>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, color: 'var(--orvo-primary)', margin: '0 0 4px' }}>Campus Listing Details</h3>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                    <Field label="Condition" required>
+                      <select
+                        value={form.condition}
+                        onChange={e => setForm(f => ({ ...f, condition: e.target.value }))}
+                        style={{ ...inputStyle }}
+                      >
+                        <option value="NEW" style={{ background: 'var(--orvo-surface)', color: 'var(--orvo-text)' }}>✨ New</option>
+                        <option value="LIKE_NEW" style={{ background: 'var(--orvo-surface)', color: 'var(--orvo-text)' }}>🌟 Like New</option>
+                        <option value="GOOD" style={{ background: 'var(--orvo-surface)', color: 'var(--orvo-text)' }}>👍 Good</option>
+                        <option value="FAIR" style={{ background: 'var(--orvo-surface)', color: 'var(--orvo-text)' }}>👌 Fair</option>
+                      </select>
+                    </Field>
+
+                    <Field label="Offer Type" required>
+                      <select
+                        value={form.listingType}
+                        onChange={e => setForm(f => ({ ...f, listingType: e.target.value }))}
+                        style={{ ...inputStyle }}
+                      >
+                        <option value="SELL" style={{ background: 'var(--orvo-surface)', color: 'var(--orvo-text)' }}>💰 Buy / Sell</option>
+                        <option value="RENT" style={{ background: 'var(--orvo-surface)', color: 'var(--orvo-text)' }}>⏳ Rent</option>
+                        <option value="FREE" style={{ background: 'var(--orvo-surface)', color: 'var(--orvo-text)' }}>🎁 Free / Donate</option>
+                      </select>
+                    </Field>
+                  </div>
+
+                  <Field label="Campus Location" required hint="e.g. Hostel Block B, Room 204 or Sector 15 PG">
+                    <CustomInput placeholder="Where can the buyer meet you on campus?" value={form.location} onChange={set('location')} />
+                  </Field>
+                </div>
+              )}
+
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-                <button disabled={!canStep1} onClick={() => setStep(1)} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: canStep1 ? '#BBC863' : 'rgba(255,255,255,0.08)', color: canStep1 ? '#0A1A0F' : 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: 15, cursor: canStep1 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }} onMouseEnter={e => { if (canStep1) e.currentTarget.style.background = '#d2df78'; }} onMouseLeave={e => { if (canStep1) e.currentTarget.style.background = '#BBC863'; }}>
+                <button disabled={!canStep1} onClick={() => setStep(1)} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: canStep1 ? 'var(--orvo-primary)' : 'var(--orvo-border-strong)', color: '#fff', fontWeight: 800, fontSize: 15, cursor: canStep1 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }} onMouseEnter={e => { if (canStep1) e.currentTarget.style.background = 'var(--orvo-primary-light)'; }} onMouseLeave={e => { if (canStep1) e.currentTarget.style.background = 'var(--orvo-primary)'; }}>
                   Next: Pricing & Stock →
                 </button>
               </div>
@@ -441,13 +522,13 @@ export default function NewProductPage() {
           {/* ── STEP 1: Pricing & Stock ── */}
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: '#fff', margin: 0 }}>Pricing & Stock</h2>
+              <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: 'var(--orvo-text)', margin: 0 }}>Pricing & Stock</h2>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 <Field label="Selling Price (₹)" required>
                   <div style={{ position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'rgba(255,255,255,0.35)', fontWeight: 700, pointerEvents: 'none' }}>₹</span>
-                    <CustomInput style={{ paddingLeft: 38 }} type="number" min="1" step="0.01" placeholder="0.00" value={pricing.price} onChange={setP('price')} />
+                    <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--orvo-text-faint)', fontWeight: 700, pointerEvents: 'none' }}>₹</span>
+                    <CustomInput style={{ paddingLeft: 38 }} type="number" min="0" step="0.01" placeholder="0.00" value={pricing.price} onChange={setP('price')} />
                   </div>
                 </Field>
                 <Field label="Available Stock" required>
@@ -457,21 +538,21 @@ export default function NewProductPage() {
 
               {/* Live preview */}
               {parseFloat(pricing.price) > 0 && (
-                <div style={{ background: 'rgba(187,200,99,0.07)', border: '1px solid rgba(187,200,99,0.15)', borderRadius: 14, padding: '18px 22px', display: 'flex', gap: 24 }}>
+                <div style={{ background: 'var(--orvo-surface-2)', border: '1px solid var(--orvo-border)', borderRadius: 14, padding: '18px 22px', display: 'flex', gap: 24 }}>
                   <div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>Selling Price</div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: '#BBC863' }}>₹{parseFloat(pricing.price).toLocaleString('en-IN')}</div>
+                    <div style={{ fontSize: 11, color: 'var(--orvo-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>Selling Price</div>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: 'var(--orvo-primary)' }}>₹{parseFloat(pricing.price).toLocaleString('en-IN')}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>Stock</div>
-                    <div style={{ fontSize: 24, fontWeight: 900, color: '#fff' }}>{pricing.stock || 0} units</div>
+                    <div style={{ fontSize: 11, color: 'var(--orvo-text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>Stock</div>
+                    <div style={{ fontSize: 24, fontWeight: 900, color: 'var(--orvo-text)' }}>{pricing.stock || 0} units</div>
                   </div>
                 </div>
               )}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-                <button onClick={() => setStep(0)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>← Back</button>
-                <button disabled={!canStep2} onClick={() => setStep(2)} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: canStep2 ? '#BBC863' : 'rgba(255,255,255,0.08)', color: canStep2 ? '#0A1A0F' : 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: 15, cursor: canStep2 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }} onMouseEnter={e => { if (canStep2) e.currentTarget.style.background = '#d2df78'; }} onMouseLeave={e => { if (canStep2) e.currentTarget.style.background = '#BBC863'; }}>
+                <button onClick={() => setStep(0)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid var(--orvo-border)', background: 'var(--orvo-surface-2)', color: 'var(--orvo-text-muted)', fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--orvo-border-strong)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--orvo-border)'}>← Back</button>
+                <button disabled={!canStep2} onClick={() => setStep(2)} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: canStep2 ? 'var(--orvo-primary)' : 'var(--orvo-border-strong)', color: '#fff', fontWeight: 800, fontSize: 15, cursor: canStep2 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }} onMouseEnter={e => { if (canStep2) e.currentTarget.style.background = 'var(--orvo-primary-light)'; }} onMouseLeave={e => { if (canStep2) e.currentTarget.style.background = 'var(--orvo-primary)'; }}>
                   Next: Photos →
                 </button>
               </div>
@@ -482,15 +563,15 @@ export default function NewProductPage() {
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
               <div>
-                <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: '#fff', margin: '0 0 6px' }}>Product Photos</h2>
-                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, margin: 0 }}>Upload at least one photo. The first image becomes your main listing photo.</p>
+                <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: 'var(--orvo-text)', margin: '0 0 6px' }}>Product Photos</h2>
+                <p style={{ color: 'var(--orvo-text-muted)', fontSize: 13, margin: 0 }}>Upload at least one photo. The first image becomes your main listing photo.</p>
               </div>
 
               <ImageDropZone images={images} onAdd={addImage} onRemove={removeImage} onSetPrimary={setPrimary} />
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-                <button onClick={() => setStep(1)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>← Back</button>
-                <button disabled={!canStep3} onClick={() => setStep(3)} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: canStep3 ? '#BBC863' : 'rgba(255,255,255,0.08)', color: canStep3 ? '#0A1A0F' : 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: 15, cursor: canStep3 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }} onMouseEnter={e => { if (canStep3) e.currentTarget.style.background = '#d2df78'; }} onMouseLeave={e => { if (canStep3) e.currentTarget.style.background = '#BBC863'; }}>
+                <button onClick={() => setStep(1)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid var(--orvo-border)', background: 'var(--orvo-surface-2)', color: 'var(--orvo-text-muted)', fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--orvo-border-strong)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--orvo-border)'}>← Back</button>
+                <button disabled={!canStep3} onClick={() => setStep(3)} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: canStep3 ? 'var(--orvo-primary)' : 'var(--orvo-border-strong)', color: '#fff', fontWeight: 800, fontSize: 15, cursor: canStep3 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }} onMouseEnter={e => { if (canStep3) e.currentTarget.style.background = 'var(--orvo-primary-light)'; }} onMouseLeave={e => { if (canStep3) e.currentTarget.style.background = 'var(--orvo-primary)'; }}>
                   Review & Submit →
                 </button>
               </div>
@@ -500,10 +581,10 @@ export default function NewProductPage() {
           {/* ── STEP 3: Review ── */}
           {step === 3 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: '#fff', margin: 0 }}>Review Your Listing</h2>
+              <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: 'var(--orvo-text)', margin: 0 }}>Review Your Listing</h2>
 
               {/* Product card preview */}
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: 14, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div style={{ background: 'var(--orvo-surface-2)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--orvo-border)' }}>
                 {/* Main image */}
                 {images[0] && (
                   <div style={{ height: 220, overflow: 'hidden' }}>
@@ -511,14 +592,14 @@ export default function NewProductPage() {
                   </div>
                 )}
                 <div style={{ padding: '20px 22px' }}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 4 }}>{form.title}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>{selectedCat?.name} {form.tags && `· ${form.tags}`}</div>
-                  <div style={{ display: 'flex', gap: 20, fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 14 }}>
-                    <span>₹<strong style={{ color: '#BBC863', fontSize: 20, fontWeight: 900 }}>{parseFloat(pricing.price).toLocaleString('en-IN')}</strong></span>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--orvo-text)', marginBottom: 4 }}>{form.title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--orvo-text-muted)', marginBottom: 12 }}>{selectedCat?.name} {form.tags && `· ${form.tags}`}</div>
+                  <div style={{ display: 'flex', gap: 20, fontSize: 13, color: 'var(--orvo-text-muted)', marginBottom: 14 }}>
+                    <span>₹<strong style={{ color: 'var(--orvo-primary)', fontSize: 20, fontWeight: 900 }}>{parseFloat(pricing.price).toLocaleString('en-IN')}</strong></span>
                     <span>{pricing.stock} units in stock</span>
                     <span>{images.length} photo{images.length !== 1 ? 's' : ''}</span>
                   </div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{form.description.slice(0, 160)}{form.description.length > 160 ? '…' : ''}</div>
+                  <div style={{ fontSize: 12, color: 'var(--orvo-text-muted)', lineHeight: 1.6 }}>{form.description.slice(0, 160)}{form.description.length > 160 ? '…' : ''}</div>
                 </div>
               </div>
 
@@ -526,25 +607,30 @@ export default function NewProductPage() {
               {images.length > 1 && (
                 <div style={{ display: 'flex', gap: 8 }}>
                   {images.slice(1, 5).map((img, i) => (
-                    <div key={i} style={{ width: 64, height: 64, borderRadius: 8, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div key={i} style={{ width: 64, height: 64, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--orvo-border)' }}>
                       <img src={img.dataUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   ))}
-                  {images.length > 5 && <div style={{ width: 64, height: 64, borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>+{images.length - 5}</div>}
+                  {images.length > 5 && <div style={{ width: 64, height: 64, borderRadius: 8, background: 'var(--orvo-surface-2)', border: '1px solid var(--orvo-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--orvo-text-faint)', fontWeight: 700 }}>+{images.length - 5}</div>}
                 </div>
               )}
 
               {/* Status notice */}
-              <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 13, color: '#fbbf24', fontWeight: 600 }}>
-                ⏳ This listing will be <strong>pending admin review</strong> before going live on the marketplace.
-              </div>
-
-              {error && <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171', fontSize: 13, fontWeight: 600 }}>⚠ {error}</div>}
+              {form.isStudentListing ? (
+                <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(49, 105, 78, 0.08)', border: '1px solid rgba(49, 105, 78, 0.2)', fontSize: 13, color: 'var(--orvo-success)', fontWeight: 600 }}>
+                  ⚡ This campus listing will be <strong>instantly approved and live</strong> for fellow students!
+                </div>
+              ) : (
+                <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 13, color: '#b45309', fontWeight: 600 }}>
+                  ⏳ This listing will be <strong>pending admin review</strong> before going live on the marketplace.
+                </div>
+              )}
+              {error && <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: 'var(--orvo-danger)', fontSize: 13, fontWeight: 600 }}>⚠ {error}</div>}
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-                <button onClick={() => setStep(2)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'transparent', color: 'rgba(255,255,255,0.55)', fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'}>← Back</button>
-                <button onClick={handleSubmit} disabled={submitting} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: submitting ? 'rgba(255,255,255,0.08)' : '#BBC863', color: submitting ? 'rgba(255,255,255,0.25)' : '#0A1A0F', fontWeight: 900, fontSize: 15, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => { if (!submitting) e.currentTarget.style.background = '#d2df78'; }} onMouseLeave={e => { if (!submitting) e.currentTarget.style.background = '#BBC863'; }}>
-                  {submitting ? <><span style={{ width: 16, height: 16, border: '2px solid rgba(0,0,0,0.2)', borderTop: '2px solid #0A1A0F', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} /> Submitting…</> : '🚀 Submit Listing'}
+                <button onClick={() => setStep(2)} style={{ padding: '13px 24px', borderRadius: 12, border: '1px solid var(--orvo-border)', background: 'var(--orvo-surface-2)', color: 'var(--orvo-text-muted)', fontWeight: 700, fontSize: 14, cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--orvo-border-strong)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--orvo-border)'}>← Back</button>
+                <button onClick={handleSubmit} disabled={submitting} style={{ padding: '14px 36px', borderRadius: 12, border: 'none', background: submitting ? 'var(--orvo-border-strong)' : 'var(--orvo-primary)', color: '#fff', fontWeight: 900, fontSize: 15, cursor: submitting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all 0.2s' }} onMouseEnter={e => { if (!submitting) e.currentTarget.style.background = 'var(--orvo-primary-light)'; }} onMouseLeave={e => { if (!submitting) e.currentTarget.style.background = 'var(--orvo-primary)'; }}>
+                  {submitting ? <><span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.2)', borderTop: '2px solid #fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} /> Submitting…</> : '🚀 Submit Listing'}
                 </button>
               </div>
             </div>
@@ -552,5 +638,20 @@ export default function NewProductPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function NewProductPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--orvo-bg)' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 40, height: 40, border: '3px solid var(--orvo-border)', borderTop: '3px solid var(--orvo-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+          <p style={{ color: 'var(--orvo-text-muted)' }}>Loading listing portal…</p>
+        </div>
+      </div>
+    }>
+      <NewProductContent />
+    </Suspense>
   );
 }

@@ -56,7 +56,7 @@ export default function ProductDetailPage() {
 
   const addToCart = async () => {
     if (!user) {
-      window.location.href = '/auth/login';
+      window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
       return;
     }
     setAddingCart(true);
@@ -73,7 +73,7 @@ export default function ProductDetailPage() {
 
   const toggleWishlist = async () => {
     if (!user) {
-      window.location.href = '/auth/login';
+      window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
       return;
     }
     if (!product || wishlistLoading) return;
@@ -431,20 +431,51 @@ export default function ProductDetailPage() {
               boxShadow: 'var(--shadow-card)',
               display: 'flex',
               flexDirection: 'column',
-              gap: 4
+              gap: 12
             }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--orvo-text-faint)', textTransform: 'uppercase', letterSpacing: 0.8 }}>Sold & Shipped By</div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--orvo-text)' }}>{product.seller.shopName}</div>
-                  <div style={{ fontSize: 13, color: 'var(--orvo-text-muted)', marginTop: 2 }}>📍 Region: {product.seller.region}</div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--orvo-text-faint)', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                  {product.isStudentListing ? '🎓 Student Listing By' : 'Sold & Shipped By'}
                 </div>
-                {product.seller.isVerified && (
-                  <span style={{ background: 'rgba(187,200,99,0.15)', color: 'var(--orvo-primary-dark)', fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    ✓ Verified
-                  </span>
-                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: 16, color: 'var(--orvo-text)' }}>{product.seller.shopName}</div>
+                    <div style={{ fontSize: 13, color: 'var(--orvo-text-muted)', marginTop: 2 }}>
+                      📍 {product.isStudentListing ? `Campus Location: ${product.location || 'Not specified'}` : `Region: ${product.seller.region}`}
+                    </div>
+                  </div>
+                  {product.seller.isVerified && (
+                    <span style={{ background: 'rgba(187,200,99,0.15)', color: 'var(--orvo-primary-dark)', fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                      ✓ Verified
+                    </span>
+                  )}
+                </div>
               </div>
+
+              {product.isStudentListing && (
+                <Link
+                  href={`/chat?userId=${product.seller.userId || ''}&userName=${encodeURIComponent(product.seller.shopName)}&productId=${product.id}`}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    background: '#BBC863',
+                    color: '#1E4632',
+                    fontWeight: 800,
+                    fontSize: 13,
+                    padding: '10px 16px',
+                    borderRadius: 10,
+                    textDecoration: 'none',
+                    textAlign: 'center',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                >
+                  💬 Chat with Student Seller
+                </Link>
+              )}
             </div>
           )}
 
@@ -503,7 +534,7 @@ export default function ProductDetailPage() {
                 <button 
                   onClick={() => {
                     if (!user) {
-                      window.location.href = '/auth/login';
+                      window.location.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
                       return;
                     }
                     // Store buy-now intent in sessionStorage (does NOT touch cart)

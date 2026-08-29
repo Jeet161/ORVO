@@ -10,9 +10,13 @@ neonConfig.webSocketConstructor = ws;
 export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     const connectionString = process.env.DATABASE_URL!;
-    const pool = new Pool({ connectionString });
-    const adapter = new PrismaNeon(pool as any);
-    super({ adapter: adapter as any });
+    if (connectionString && connectionString.startsWith('postgresql')) {
+      const pool = new Pool({ connectionString });
+      const adapter = new PrismaNeon(pool as any);
+      super({ adapter: adapter as any });
+    } else {
+      super();
+    }
   }
 
   async onModuleInit() {

@@ -184,6 +184,108 @@ async function main() {
     });
 
     console.log('Created sample products');
+
+    // 6. Create Student Categories & Listings
+    const usedBooks = await prisma.category.upsert({
+      where: { slug: 'used-books' },
+      update: {},
+      create: { name: 'Used Books', slug: 'used-books' },
+    });
+
+    const hostelEssentials = await prisma.category.upsert({
+      where: { slug: 'hostel-essentials' },
+      update: {},
+      create: { name: 'Hostel Essentials', slug: 'hostel-essentials' },
+    });
+
+    const labEquipment = await prisma.category.upsert({
+      where: { slug: 'lab-equipment' },
+      update: {},
+      create: { name: 'Lab Equipment', slug: 'lab-equipment' },
+    });
+
+    const bicyclesRides = await prisma.category.upsert({
+      where: { slug: 'bicycles-rides' },
+      update: {},
+      create: { name: 'Bicycles & Rides', slug: 'bicycles-rides' },
+    });
+
+    console.log('Created student categories');
+
+    // Create student listings
+    await prisma.product.upsert({
+      where: { slug: 'clrs-algorithms-3rd-edition' },
+      update: {},
+      create: {
+        sellerId: sellerProfile.id,
+        categoryId: usedBooks.id,
+        title: 'Introduction to Algorithms (CLRS) - 3rd Edition',
+        slug: 'clrs-algorithms-3rd-edition',
+        description: 'Standard textbook for CS algorithms course. Slightly worn cover, but no highlights inside. Perfect for second year students.',
+        price: 450.0,
+        stock: 1,
+        status: ProductStatus.APPROVED,
+        isStudentListing: true,
+        condition: 'GOOD',
+        listingType: 'SELL',
+        location: 'Hostel Block B',
+        images: {
+          create: [
+            { url: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500', isPrimary: true }
+          ]
+        }
+      }
+    });
+
+    await prisma.product.upsert({
+      where: { slug: 'electric-kettle-hostel' },
+      update: {},
+      create: {
+        sellerId: sellerProfile.id,
+        categoryId: hostelEssentials.id,
+        title: 'Electric Kettle 1.5L',
+        slug: 'electric-kettle-hostel',
+        description: 'Pre-owned Prestige electric kettle. Used for 1 year in PG. Working perfectly. Great for making late-night noodles and tea.',
+        price: 299.0,
+        stock: 1,
+        status: ProductStatus.APPROVED,
+        isStudentListing: true,
+        condition: 'GOOD',
+        listingType: 'SELL',
+        location: 'Sector 15 PG Area',
+        images: {
+          create: [
+            { url: 'https://images.unsplash.com/photo-1574269661127-73a2af3503a4?w=500', isPrimary: true }
+          ]
+        }
+      }
+    });
+
+    await prisma.product.upsert({
+      where: { slug: 'atlas-cycle-campus' },
+      update: {},
+      create: {
+        sellerId: sellerProfile.id,
+        categoryId: bicyclesRides.id,
+        title: 'Atlas Cycle (Gearless)',
+        slug: 'atlas-cycle-campus',
+        description: 'Cycle is in running condition, tires are inflated and brakes work. Perfect for riding from hostel to academic block. Key chain included.',
+        price: 1500.0,
+        stock: 1,
+        status: ProductStatus.APPROVED,
+        isStudentListing: true,
+        condition: 'FAIR',
+        listingType: 'SELL',
+        location: 'Hostel Block A Cycle Stand',
+        images: {
+          create: [
+            { url: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=500', isPrimary: true }
+          ]
+        }
+      }
+    });
+
+    console.log('Created student sample products');
   }
 
   console.log('✅ Seeding complete!');

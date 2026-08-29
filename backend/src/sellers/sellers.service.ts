@@ -60,6 +60,47 @@ export class SellersService {
     });
   }
 
+  async studentOnboard(userId: string) {
+    const existing = await this.prisma.sellerProfile.findUnique({
+      where: { userId },
+    });
+
+    if (existing) {
+      if (existing.status === SellerStatus.APPROVED) {
+        return existing;
+      }
+      return this.prisma.sellerProfile.update({
+        where: { userId },
+        data: {
+          status: SellerStatus.APPROVED,
+          isVerified: true,
+          rejectionReason: null,
+        },
+      });
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const name = user?.name || 'Student';
+    const cleanName = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const shopSlug = `student-shop-${cleanName || 'user'}-${randomSuffix}`;
+    const shopName = `${name}'s Campus Corner`;
+
+    return this.prisma.sellerProfile.create({
+      data: {
+        userId,
+        shopName,
+        shopSlug,
+        region: 'Campus',
+        bio: 'Student seller listing used items in the campus marketplace.',
+        businessLicenseUrl: 'student-dummy-license',
+        idProofUrl: 'student-dummy-id',
+        status: SellerStatus.APPROVED,
+        isVerified: true,
+      },
+    });
+  }
+
   async getSellerProfile(userId: string) {
     const profile = await this.prisma.sellerProfile.findUnique({
       where: { userId },

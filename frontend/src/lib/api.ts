@@ -57,6 +57,18 @@ export const authApi = {
       skipAuth: true,
     }),
   me: () => apiFetch<{ user: User }>('/auth/me'),
+  forgotPassword: (email: string) =>
+    apiFetch<{ message: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+      skipAuth: true,
+    }),
+  resetPassword: (token: string, email: string, newPassword?: string) =>
+    apiFetch<{ message: string }>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, email, password: newPassword }),
+      skipAuth: true,
+    }),
 };
 
 // ─── Products ──────────────────────────────────────
@@ -68,6 +80,8 @@ export const productsApi = {
     sellerRegion?: string;
     search?: string;
     sortBy?: string;
+    isStudentListing?: boolean;
+    condition?: string;
   }) => {
     const cleanParams: Record<string, string> = {};
     if (params) {
@@ -172,6 +186,22 @@ export const sellersApi = {
       method: 'PUT',
       body: JSON.stringify({ status, rejectionReason }),
     }),
+  studentOnboard: () =>
+    apiFetch<SellerProfile>('/sellers/student-onboard', { method: 'POST' }),
+};
+
+// ─── Chat ──────────────────────────────────────────
+export const chatApi = {
+  getConversations: () => apiFetch<ChatConversation[]>('/chat/conversations'),
+  getMessages: (partnerId: string, productId?: string) => {
+    const query = productId ? `?productId=${productId}` : '';
+    return apiFetch<ChatMessage[]>(`/chat/messages/${partnerId}${query}`);
+  },
+  sendMessage: (receiverId: string, message: string, productId?: string) =>
+    apiFetch<ChatMessage>('/chat/send', {
+      method: 'POST',
+      body: JSON.stringify({ receiverId, message, productId }),
+    }),
 };
 
 // ─── Reviews ───────────────────────────────────────
@@ -219,8 +249,12 @@ export interface Product {
   tags?: string;
   images: { url: string; isPrimary: boolean }[];
   category: { name: string; slug: string };
-  seller?: { shopName: string; shopSlug: string; region: string; isVerified: boolean };
+  seller?: { id: string; userId: string; shopName: string; shopSlug: string; region: string; isVerified: boolean };
   reviews?: Review[];
+  isStudentListing?: boolean;
+  condition?: string;
+  listingType?: string;
+  location?: string;
 }
 export interface Category {
   id: string;
@@ -315,4 +349,21 @@ export interface Notification {
   message: string;
   isRead: boolean;
   createdAt: string;
+}
+export interface ChatConversation {
+  partner: User;
+  lastMessage: string;
+  lastMessageAt: string;
+  isRead: boolean;
+  product?: Partial<Product>;
+}
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  productId?: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  product?: Partial<Product>;
 }

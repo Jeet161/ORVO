@@ -14,8 +14,23 @@ export class ProductsService {
     sellerRegion?: string;
     search?: string;
     sortBy?: 'price_asc' | 'price_desc' | 'newest';
+    isStudentListing?: boolean;
+    condition?: string;
+    listingType?: string;
+    location?: string;
   }) {
-    const { category, minPrice, maxPrice, sellerRegion, search, sortBy } = filters;
+    const {
+      category,
+      minPrice,
+      maxPrice,
+      sellerRegion,
+      search,
+      sortBy,
+      isStudentListing,
+      condition,
+      listingType,
+      location,
+    } = filters;
 
     // Build price range filter only when values are provided
     const priceFilter: any = {};
@@ -39,6 +54,10 @@ export class ProductsService {
         ...(category && { category: { slug: category } }),
         ...(Object.keys(priceFilter).length > 0 && { price: priceFilter }),
         ...(sellerRegion && { seller: { region: sellerRegion } }),
+        ...(isStudentListing !== undefined && { isStudentListing: isStudentListing === true }),
+        ...(condition && { condition }),
+        ...(listingType && { listingType }),
+        ...(location && { location: { contains: location } }),
         ...(search && {
           AND: search
             .trim()
@@ -46,9 +65,9 @@ export class ProductsService {
             .filter(Boolean)
             .map((word) => ({
               OR: [
-                { title: { contains: word, mode: 'insensitive' } },
-                { description: { contains: word, mode: 'insensitive' } },
-                { tags: { contains: word, mode: 'insensitive' } },
+                { title: { contains: word } },
+                { description: { contains: word } },
+                { tags: { contains: word } },
               ],
             })),
         }),
@@ -57,7 +76,7 @@ export class ProductsService {
       include: {
         images: true,
         category: true,
-        seller: { select: { shopName: true, shopSlug: true, region: true } },
+        seller: { select: { id: true, userId: true, shopName: true, shopSlug: true, region: true } },
         reviews: { select: { rating: true } },
       },
     });
@@ -71,7 +90,7 @@ export class ProductsService {
         images: true,
         category: true,
         seller: {
-          select: { shopName: true, shopSlug: true, region: true, bio: true, isVerified: true },
+          select: { id: true, userId: true, shopName: true, shopSlug: true, region: true, bio: true, isVerified: true },
         },
         reviews: {
           include: { user: { select: { name: true } } },
@@ -104,6 +123,10 @@ export class ProductsService {
       stock: number;
       tags?: string;
       images: string[];
+      isStudentListing?: boolean;
+      condition?: string;
+      listingType?: string;
+      location?: string;
     },
   ) {
     const { images, ...rest } = data;
@@ -111,6 +134,7 @@ export class ProductsService {
       data: {
         ...rest,
         sellerId,
+        status: ProductStatus.PENDING,
         images: {
           create: images.map((url, i) => ({ url, isPrimary: i === 0 })),
         },
@@ -132,6 +156,10 @@ export class ProductsService {
       stock?: number;
       tags?: string;
       images?: string[];
+      isStudentListing?: boolean;
+      condition?: string;
+      listingType?: string;
+      location?: string;
     },
   ) {
     const product = await this.prisma.product.findUnique({ where: { id: productId } });

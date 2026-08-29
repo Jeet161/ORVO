@@ -50,6 +50,7 @@ async function run() {
   try {
     const commands = [
       `CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`,
+      `DROP TABLE IF EXISTS "ChatMessage" CASCADE;`,
       `DROP TABLE IF EXISTS "Notification" CASCADE;`,
       `DROP TABLE IF EXISTS "Review" CASCADE;`,
       `DROP TABLE IF EXISTS "Payment" CASCADE;`,
@@ -149,6 +150,10 @@ async function run() {
         "tags" TEXT,
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL,
+        "isStudentListing" BOOLEAN NOT NULL DEFAULT false,
+        "condition" TEXT,
+        "listingType" TEXT DEFAULT 'SELL',
+        "location" TEXT,
         CONSTRAINT "Product_pkey" PRIMARY KEY ("id"),
         FOREIGN KEY ("sellerId") REFERENCES "SellerProfile"("id") ON DELETE CASCADE,
         FOREIGN KEY ("categoryId") REFERENCES "Category"("id")
@@ -256,6 +261,19 @@ async function run() {
         "updatedAt" TIMESTAMP(3) NOT NULL,
         CONSTRAINT "Notification_pkey" PRIMARY KEY ("id"),
         FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE
+      );`,
+      `CREATE TABLE "ChatMessage" (
+        "id" TEXT NOT NULL,
+        "senderId" TEXT NOT NULL,
+        "receiverId" TEXT NOT NULL,
+        "productId" TEXT,
+        "message" TEXT NOT NULL,
+        "isRead" BOOLEAN NOT NULL DEFAULT false,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "ChatMessage_pkey" PRIMARY KEY ("id"),
+        FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE CASCADE,
+        FOREIGN KEY ("receiverId") REFERENCES "User"("id") ON DELETE CASCADE,
+        FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL
       );`
     ];
 

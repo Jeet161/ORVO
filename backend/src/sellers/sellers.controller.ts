@@ -26,13 +26,18 @@ export class SellersController {
     return this.sellersService.applyAsSeller(userId, body);
   }
 
+  @Post('student-onboard')
+  async studentOnboard(@GetUser('id') userId: string) {
+    return this.sellersService.studentOnboard(userId);
+  }
+
   @Get('profile/me')
   async getProfile(@GetUser('id') userId: string) {
     return this.sellersService.getSellerProfile(userId);
   }
 
   @Get('analytics/me')
-  @Roles(Role.SELLER)
+  @Roles(Role.SELLER, Role.BUYER)
   async getAnalytics(@GetUser('id') userId: string) {
     const profile = await this.sellersService.getSellerProfile(userId);
     return this.sellersService.getSellerAnalytics(profile.id);

@@ -23,10 +23,10 @@ const footerLinks = {
     { label: 'Notifications', href: '/notifications' },
   ],
   Company: [
-    { label: 'About ORVO', href: '#' },
+    { label: 'About ORVO', href: '/about' },
     { label: 'Privacy Policy', href: '#' },
     { label: 'Terms of Service', href: '#' },
-    { label: 'Contact Us', href: '#' },
+    { label: 'Contact Us', href: '/contact' },
   ],
 };
 

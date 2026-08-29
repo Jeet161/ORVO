@@ -104,6 +104,31 @@ export function Navbar() {
         {/* Right side actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
 
+          <Link href="/campus-marketplace" style={{
+            color: '#BBC863', fontSize: 13, fontWeight: 700, padding: '8px 14px', borderRadius: 8,
+            textDecoration: 'none', border: '1px solid rgba(187,200,99,0.3)',
+            background: 'rgba(187,200,99,0.06)', marginRight: 4, transition: 'all 0.2s',
+            display: 'flex', alignItems: 'center', gap: 5
+          }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(187,200,99,0.15)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(187,200,99,0.06)'; }}
+          >
+            🏫 Campus Market
+          </Link>
+
+          {user && (
+            <Link href="/chat" style={{
+              color: 'rgba(255,255,255,0.8)', fontSize: 13, fontWeight: 600, padding: '8px 12px', borderRadius: 8,
+              textDecoration: 'none', marginRight: 4, transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', gap: 6
+            }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#fff'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.8)'; }}
+            >
+              💬 Messages
+            </Link>
+          )}
+
           {/* More dropdown */}
           <div ref={moreRef} style={{ position: 'relative' }}>
             <button onClick={() => setMoreOpen(o => !o)} style={{
@@ -132,8 +157,8 @@ export function Navbar() {
                   { href: '/', label: 'Home', desc: 'Back to homepage' },
                   { href: '/products', label: 'The Marketplace', desc: 'Browse all products' },
                   { href: '/seller/apply', label: 'Become a Seller', desc: 'Start selling on ORVO' },
-                  { href: '#', label: 'Contact', desc: 'Get in touch' },
-                  { href: '#', label: 'About Us', desc: 'Our story & mission' },
+                  { href: '/contact', label: 'Contact', desc: 'Get in touch' },
+                  { href: '/about', label: 'About Us', desc: 'Our story & mission' },
                 ].map(item => (
                   <Link key={item.label} href={item.href} onClick={() => setMoreOpen(false)} style={{
                     display: 'block', padding: '10px 14px', borderRadius: 8,

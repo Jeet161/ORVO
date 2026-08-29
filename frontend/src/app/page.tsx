@@ -83,11 +83,11 @@ export default function HomePage() {
         {/* ── Sliding product card ── */}
         <div style={{ width: '100%', maxWidth: 1140, padding: '0 24px', position: 'relative', zIndex: 2 }}>
           {loading ? (
-            <div style={{ height: 420, borderRadius: 28, background: 'rgba(255,255,255,0.05)', animation: 'pulse 1.5s infinite' }} />
+            <div style={{ height: 540, borderRadius: 28, background: 'rgba(255,255,255,0.05)', animation: 'pulse 1.5s infinite' }} />
           ) : hero ? (
             <div key={heroIndex} style={{
               borderRadius: '28px 28px 28px 28px', overflow: 'hidden', position: 'relative',
-              height: 420, boxShadow: '0 25px 60px rgba(0,0,0,0.55)',
+              height: 540, boxShadow: '0 25px 60px rgba(0,0,0,0.55)',
               transition: 'opacity 0.5s ease',
             }}>
               {/* Background image */}
