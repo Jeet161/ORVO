@@ -9,7 +9,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   loginGoogle: (idToken: string) => Promise<void>;
-  register: (email: string, name: string, password: string) => Promise<void>;
+  register: (email: string, name: string, password: string, otpCode?: string) => Promise<void>;
   logout: () => void;
   isAdmin: boolean;
   isSeller: boolean;
@@ -62,8 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     else router.push('/');
   };
 
-  const register = async (email: string, name: string, password: string) => {
-    await authApi.register(email, name, password);
+  const register = async (email: string, name: string, password: string, otpCode?: string) => {
+    await authApi.register(email, name, password, otpCode);
     await login(email, password);
   };
 

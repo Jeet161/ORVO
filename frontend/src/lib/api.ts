@@ -38,10 +38,10 @@ async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T>
 
 // ─── Auth ──────────────────────────────────────────
 export const authApi = {
-  register: (email: string, name: string, password: string) =>
+  register: (email: string, name: string, password: string, otpCode?: string) =>
     apiFetch('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, name, password }),
+      body: JSON.stringify({ email, name, password, otpCode }),
       skipAuth: true,
     }),
   login: (email: string, password: string) =>
@@ -118,6 +118,8 @@ export const wishlistApi = {
 export const ordersApi = {
   checkout: (data: { addressId: string; paymentMethod: string; idempotencyKey?: string }) =>
     apiFetch('/orders/checkout', { method: 'POST', body: JSON.stringify(data) }),
+  buyNow: (data: { productId: string; quantity: number; addressId: string; paymentMethod: string; idempotencyKey?: string }) =>
+    apiFetch('/orders/buy-now', { method: 'POST', body: JSON.stringify(data) }),
   getMyOrders: () => apiFetch<Order[]>('/orders/my-orders'),
   getSellerOrders: () => apiFetch<Order[]>('/orders/seller/my-orders'),
   getById: (id: string) => apiFetch<Order>(`/orders/${id}`),
@@ -129,6 +131,25 @@ export const ordersApi = {
 export const paymentsApi = {
   process: (orderId: string) =>
     apiFetch(`/payments/order/${orderId}/process`, { method: 'POST' }),
+};
+
+// ─── Users / Addresses ─────────────────────────────
+export const usersApi = {
+  getAddresses: () => apiFetch<Address[]>('/users/addresses'),
+  addAddress: (data: {
+    name: string;
+    phone: string;
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country?: string;
+    isDefault?: boolean;
+  }) => apiFetch<Address>('/users/addresses', { method: 'POST', body: JSON.stringify(data) }),
+  updateAddress: (id: string, data: Partial<Address>) =>
+    apiFetch<Address>(`/users/addresses/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteAddress: (id: string) =>
+    apiFetch(`/users/addresses/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Sellers ───────────────────────────────────────
@@ -190,7 +211,7 @@ export interface Product {
   tags?: string;
   images: { url: string; isPrimary: boolean }[];
   category: { name: string; slug: string };
-  seller?: { shopName: string; shopSlug: string; region: string };
+  seller?: { shopName: string; shopSlug: string; region: string; isVerified: boolean };
   reviews?: Review[];
 }
 export interface Category {
@@ -235,6 +256,17 @@ export interface Payment {
   method: string;
   status: string;
   amount: number;
+}
+export interface Address {
+  id: string;
+  name: string;
+  phone: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  isDefault: boolean;
 }
 export interface Review {
   id: string;

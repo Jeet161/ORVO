@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Syne:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -52,7 +52,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--orvo-bg);
   color: var(--orvo-text);
   line-height: 1.6;
@@ -61,7 +61,7 @@ body {
 
 /* ── Typography ─────────────────────────────── */
 .font-display {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Outfit', sans-serif;
 }
 
 /* ── Scrollbar ─────────────────────────────── */
@@ -115,13 +115,13 @@ body {
 .btn-primary {
   background: linear-gradient(135deg, var(--orvo-primary) 0%, var(--orvo-primary-dark) 100%);
   color: #fff;
-  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+  box-shadow: 0 4px 15px rgba(49, 105, 78, 0.2);
 }
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 25px rgba(88, 101, 242, 0.45);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(49, 105, 78, 0.35);
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active { transform: translateY(0) scale(1); }
 
 .btn-secondary {
   background: var(--orvo-surface-2);
@@ -129,8 +129,9 @@ body {
   border: 1px solid var(--orvo-border);
 }
 .btn-secondary:hover {
-  border-color: var(--orvo-border-strong);
+  border-color: var(--orvo-primary);
   background: var(--orvo-surface-3);
+  transform: translateY(-1px) scale(1.01);
 }
 
 .btn-ghost {
@@ -139,9 +140,10 @@ body {
   border: 1px solid transparent;
 }
 .btn-ghost:hover {
-  color: var(--orvo-text);
+  color: var(--orvo-primary);
   border-color: var(--orvo-border);
   background: var(--orvo-surface-2);
+  transform: translateY(-1px);
 }
 
 .btn-danger {
@@ -249,7 +251,7 @@ body {
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 
 /* ── Layout Utilities ───────────────────── */
-.container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.container { max-width: 1600px; margin: 0 auto; padding: 0 24px; }
 .section { padding: 60px 0; }
 
 /* ── Stat Card ──────────────────────────── */

@@ -179,6 +179,100 @@ export class OrdersService {
     return result;
   }
 
+  async buyNow(userId: string, data: {
+    productId: string;
+    quantity: number;
+    addressId: string;
+    paymentMethod: PaymentMethod;
+    idempotencyKey?: string;
+  }) {
+    // Idempotency check
+    if (data.idempotencyKey) {
+      const existing = await this.prisma.order.findUnique({
+        where: { idempotencyKey: data.idempotencyKey },
+        include: { items: { include: { product: true } } },
+      });
+      if (existing) return existing;
+    }
+
+    // Fetch address
+    const address = await this.prisma.address.findFirst({
+      where: { id: data.addressId, userId },
+    });
+    if (!address) throw new NotFoundException('Shipping address not found.');
+
+    // Fetch product
+    const product = await this.prisma.product.findUnique({
+      where: { id: data.productId },
+    });
+    if (!product) throw new NotFoundException('Product not found.');
+    if (product.status !== 'APPROVED') throw new BadRequestException('Product is no longer available.');
+    if (product.stock < data.quantity) {
+      throw new BadRequestException(`Only ${product.stock} items in stock.`);
+    }
+
+    const subtotal = product.price * data.quantity;
+    const shippingAddressJson = {
+      name: address.name, phone: address.phone, street: address.street,
+      city: address.city, state: address.state, postalCode: address.postalCode, country: address.country,
+    };
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Decrement stock
+      await tx.product.update({
+        where: { id: product.id },
+        data: {
+          stock: product.stock - data.quantity,
+          status: product.stock - data.quantity === 0 ? 'OUT_OF_STOCK' : 'APPROVED',
+        },
+      });
+
+      // Create order
+      const order = await tx.order.create({
+        data: {
+          buyerId: userId,
+          totalAmount: subtotal,
+          status: data.paymentMethod === PaymentMethod.COD ? OrderStatus.CONFIRMED : OrderStatus.PENDING,
+          paymentStatus: PaymentStatus.PENDING,
+          shippingAddress: shippingAddressJson,
+          idempotencyKey: data.idempotencyKey || null,
+          items: {
+            create: [{
+              productId: product.id,
+              sellerId: product.sellerId,
+              quantity: data.quantity,
+              price: product.price,
+              subtotal,
+            }],
+          },
+        },
+        include: { items: { include: { product: { select: { title: true } } } } },
+      });
+
+      // Payment entry
+      await tx.payment.create({
+        data: { orderId: order.id, method: data.paymentMethod, status: PaymentStatus.PENDING, amount: subtotal },
+      });
+
+      // Notify buyer
+      await tx.notification.create({
+        data: { userId, title: 'Order Placed!', message: `Your order for ₹${subtotal} has been placed.` },
+      });
+
+      // Notify seller
+      const sellerProfile = await tx.sellerProfile.findUnique({ where: { id: product.sellerId } });
+      if (sellerProfile) {
+        await tx.notification.create({
+          data: { userId: sellerProfile.userId, title: 'New Order!', message: `New order for "${product.title}" from your shop.` },
+        });
+      }
+
+      return order;
+    });
+
+    return result;
+  }
+
   async getBuyerOrders(userId: string) {
     return this.prisma.order.findMany({
       where: { buyerId: userId },

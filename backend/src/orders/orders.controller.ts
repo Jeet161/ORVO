@@ -27,6 +27,20 @@ export class OrdersController {
     return this.ordersService.checkout(userId, body);
   }
 
+  @Post('buy-now')
+  async buyNow(
+    @GetUser('id') userId: string,
+    @Body() body: {
+      productId: string;
+      quantity: number;
+      addressId: string;
+      paymentMethod: PaymentMethod;
+      idempotencyKey?: string;
+    },
+  ) {
+    return this.ordersService.buyNow(userId, body);
+  }
+
   @Get('my-orders')
   async getBuyerOrders(@GetUser('id') userId: string) {
     return this.ordersService.getBuyerOrders(userId);

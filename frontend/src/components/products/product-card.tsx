@@ -20,7 +20,10 @@ export function ProductCard({ product, showStatus = false }: ProductCardProps) {
 
   const toggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      window.location.href = '/auth/login';
+      return;
+    }
     try {
       if (inWishlist) {
         await wishlistApi.remove(product.id);
@@ -34,7 +37,10 @@ export function ProductCard({ product, showStatus = false }: ProductCardProps) {
 
   const addToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      window.location.href = '/auth/login';
+      return;
+    }
     setAddingCart(true);
     try {
       await cartApi.addItem(product.id, 1);
@@ -71,23 +77,21 @@ export function ProductCard({ product, showStatus = false }: ProductCardProps) {
           )}
 
           {/* Wishlist */}
-          {user && (
-            <button
-              onClick={toggleWishlist}
-              style={{
-                position: 'absolute', top: 10, right: 10,
-                width: 34, height: 34, borderRadius: '50%',
-                background: 'rgba(8,11,17,0.7)', backdropFilter: 'blur(8px)',
-                border: '1px solid var(--orvo-border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', fontSize: 16,
-                color: inWishlist ? '#ff6b6b' : 'var(--orvo-text-muted)',
-                transition: 'all 0.2s',
-              }}
-            >
-              {inWishlist ? '♥' : '♡'}
-            </button>
-          )}
+          <button
+            onClick={toggleWishlist}
+            style={{
+              position: 'absolute', top: 10, right: 10,
+              width: 34, height: 34, borderRadius: '50%',
+              background: 'rgba(8,11,17,0.7)', backdropFilter: 'blur(8px)',
+              border: '1px solid var(--orvo-border)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', fontSize: 16,
+              color: inWishlist ? '#ff6b6b' : '#fff',
+              transition: 'all 0.2s',
+            }}
+          >
+            {inWishlist ? '♥' : '♡'}
+          </button>
 
           {/* Status badge */}
           {showStatus && (
@@ -134,7 +138,7 @@ export function ProductCard({ product, showStatus = false }: ProductCardProps) {
               ₹{product.price.toLocaleString('en-IN')}
             </span>
 
-            {user && product.stock > 0 && (
+            {product.stock > 0 && (
               <button
                 onClick={addToCart}
                 disabled={addingCart}

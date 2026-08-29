@@ -97,32 +97,41 @@ export class SellersService {
       throw new NotFoundException('Seller application not found');
     }
 
-    const [updatedSeller] = await this.prisma.$transaction([
-      this.prisma.sellerProfile.update({
-        where: { id: applicationId },
-        data: {
-          status,
-          rejectionReason: status === SellerStatus.REJECTED ? rejectionReason : null,
-          isVerified: status === SellerStatus.APPROVED,
-        },
-      }),
-      this.prisma.user.update({
-        where: { id: application.userId },
-        data: {
-          role: status === SellerStatus.APPROVED ? Role.SELLER : Role.BUYER,
-        },
-      }),
-      // Create notification
-      this.prisma.notification.create({
-        data: {
-          userId: application.userId,
-          title: status === SellerStatus.APPROVED ? 'Seller Application Approved!' : 'Seller Application Rejected',
-          message: status === SellerStatus.APPROVED
-            ? `Congratulations, your shop "${application.shopName}" has been approved. You can now list products.`
-            : `Your application was rejected. Reason: ${rejectionReason || 'No reason provided.'}`,
-        },
-      }),
-    ]);
+    let updatedSeller: any;
+    try {
+      updatedSeller = await this.prisma.$transaction(async (tx) => {
+        const seller = await tx.sellerProfile.update({
+          where: { id: applicationId },
+          data: {
+            status,
+            rejectionReason: status === SellerStatus.REJECTED ? rejectionReason : null,
+            isVerified: status === SellerStatus.APPROVED,
+          },
+        });
+
+        await tx.user.update({
+          where: { id: application.userId },
+          data: {
+            role: status === SellerStatus.APPROVED ? Role.SELLER : Role.BUYER,
+          },
+        });
+
+        await tx.notification.create({
+          data: {
+            userId: application.userId,
+            title: status === SellerStatus.APPROVED ? 'Seller Application Approved!' : 'Seller Application Rejected',
+            message: status === SellerStatus.APPROVED
+              ? `Congratulations, your shop "${application.shopName}" has been approved. You can now list products.`
+              : `Your application was rejected. Reason: ${rejectionReason || 'No reason provided.'}`,
+          },
+        });
+
+        return seller;
+      });
+    } catch (err: any) {
+      console.error('[reviewApplication] Transaction failed:', err?.message ?? err);
+      throw new BadRequestException(err?.message || 'Failed to review application. Please try again.');
+    }
 
     return updatedSeller;
   }
